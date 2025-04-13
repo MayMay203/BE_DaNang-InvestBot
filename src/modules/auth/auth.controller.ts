@@ -5,19 +5,15 @@ import {
   HttpStatus,
   Post,
   Res,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ResponseData } from 'src/global/globalClass';
 import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
 import { Response } from 'express';
+import { RegisterDTO } from 'src/DTO/register.dto';
+import { LoginDTO } from 'src/DTO/login.dto';
 
-class RegisterDTO {
-  email: string;
-  fullName: string;
-  password: string;
-  confirmPassword: string;
-  roleId?: number;
-}
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -31,7 +27,10 @@ export class AuthController {
   }
 
   @Post('/register')
-  async register(@Body() body: RegisterDTO, @Res() res: Response) {
+  async register(
+    @Body(new ValidationPipe()) body: RegisterDTO,
+    @Res() res: Response,
+  ) {
     const { email, fullName, password, confirmPassword, roleId } = body;
 
     // check input fields
@@ -74,4 +73,10 @@ export class AuthController {
         );
     }
   }
+
+  @Post('/login')
+  async login(
+    @Body(new ValidationPipe()) body: LoginDTO,
+    @Res() res: Response,
+  ) {}
 }

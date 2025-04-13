@@ -29,7 +29,7 @@ export class AuthService implements OnModuleInit {
     email: string,
     fullName: string,
     password: string,
-    roleId: number | undefined,
+    roleId: number | null,
   ) {
     // check existed account
     const existedAcc = await this.accountRepository.findOne({
