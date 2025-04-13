@@ -7,11 +7,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
 import { Account } from './entities/account.entity';
 import { join } from 'path';
+import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     AuthModule,
+    RoleModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({

@@ -13,7 +13,12 @@ export class AuthService {
     @InjectRepository(Account) private accountRepository: Repository<Account>,
     private emailService: EmailService,
   ) {}
-  async register(email: string, fullName: string, password: string) {
+  async register(
+    email: string,
+    fullName: string,
+    password: string,
+    roleId: number | undefined,
+  ) {
     // check existed account
     const existedAcc = await this.accountRepository.findOne({
       where: {
@@ -31,13 +36,14 @@ export class AuthService {
     // hash password
     const saltOrRounds = 10;
     const hashedPass = await bcrypt.hash(password, saltOrRounds);
-
+    const defaultRole = 2;
     const newUser = this.accountRepository.create({
       email,
       fullName,
       password: hashedPass,
       OTP,
       expiredAt,
+      role: { id: roleId || defaultRole },
     });
 
     await this.emailService.sendOTP(email, OTP);

@@ -16,6 +16,7 @@ class RegisterDTO {
   fullName: string;
   password: string;
   confirmPassword: string;
+  roleId?: number;
 }
 @Controller('auth')
 export class AuthController {
@@ -31,7 +32,7 @@ export class AuthController {
 
   @Post('/register')
   async register(@Body() body: RegisterDTO, @Res() res: Response) {
-    const { email, fullName, password, confirmPassword } = body;
+    const { email, fullName, password, confirmPassword, roleId } = body;
 
     // check input fields
     if (this.hasMissingFields(email, fullName, password, confirmPassword)) {
@@ -54,6 +55,7 @@ export class AuthController {
         email,
         fullName,
         password,
+        roleId,
       );
       return new ResponseData<object>(
         newUser,
