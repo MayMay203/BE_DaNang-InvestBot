@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ResponseData } from 'src/global/globalClass';
 import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
@@ -7,14 +7,23 @@ import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('/login')
-  login(): string {
-    return 'login';
+  @Post('/login')
+  login(
+    @Query('email') email: string,
+    @Query('password') password: string,
+  ): string {
+    return `${email} : ${password}`;
   }
 
-  @Post()
-  logout(): string {
-    return 'logout';
+  @Post('/register')
+  register(
+    @Query('email') email: string,
+    @Query('fullName') fullName: string,
+    @Query('password') password: string,
+    @Query('cofirmPassword') confirmPassword: string,
+  ): string {
+    if (password !== confirmPassword) return 'not match';
+    return 'match';
   }
 
   @Get('/:id')
