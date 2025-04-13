@@ -21,7 +21,7 @@ export class Account {
   @Column({ type: 'varchar', nullable: true })
   reason: string | null;
 
-  @Column()
+  @Column({ nullable: true })
   OTP: string;
 
   @Column()
