@@ -5,9 +5,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
-import { Account } from './entities/account.entity';
-import { join } from 'path';
 import { RoleModule } from './modules/role/role.module';
+import { Account } from './entities/account.entity';
 
 @Module({
   imports: [

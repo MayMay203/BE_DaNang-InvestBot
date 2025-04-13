@@ -17,14 +17,6 @@ import { LoginDTO } from 'src/DTO/login.dto';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  private hasMissingFields(
-    email: string,
-    fullName: string,
-    password: string,
-    confirmPassword: string,
-  ): boolean {
-    return !email || !fullName || !password || !confirmPassword;
-  }
 
   @Post('/register')
   async register(
@@ -32,14 +24,6 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const { email, fullName, password, confirmPassword, roleId } = body;
-
-    // check input fields
-    if (this.hasMissingFields(email, fullName, password, confirmPassword)) {
-      throw new HttpException(
-        'Missing required fields',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
 
     // check match password
     if (password !== confirmPassword) {
@@ -50,17 +34,16 @@ export class AuthController {
     }
 
     try {
-      const newUser = await this.authService.register(
-        email,
-        fullName,
-        password,
-        roleId,
-      );
-      return new ResponseData<object>(
-        newUser,
-        StatusCodeHTTP.CREATED,
-        MessageHTTP.CREATED,
-      );
+      await this.authService.register(email, fullName, password, roleId);
+      return res
+        .status(201)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.CREATED,
+            MessageHTTP.CREATED,
+          ),
+        );
     } catch (error) {
       return res
         .status(400)
@@ -78,5 +61,30 @@ export class AuthController {
   async login(
     @Body(new ValidationPipe()) body: LoginDTO,
     @Res() res: Response,
-  ) {}
+  ) {
+    try {
+      const { email, password } = body;
+      const userLogin = await this.authService.login(email, password);
+      console.log(userLogin);
+      return res
+        .status(200)
+        .json(
+          new ResponseData<object>(
+            userLogin,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message,
+          ),
+        );
+    }
+  }
 }

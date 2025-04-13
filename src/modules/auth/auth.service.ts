@@ -4,12 +4,14 @@ import { Account } from 'src/entities/account.entity';
 import { Repository } from 'typeorm';
 import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
   constructor(
     @InjectRepository(Account) private accountRepository: Repository<Account>,
-    private emailService: EmailService,
+    private readonly emailService: EmailService,
+    private readonly jwtService: JwtService,
   ) {}
 
   private async addDefaultAdminAcc() {
@@ -62,5 +64,35 @@ export class AuthService implements OnModuleInit {
 
     await this.emailService.sendOTP(email, OTP);
     return await this.accountRepository.save(newUser);
+  }
+
+  async login(email: string, password: string) {
+    const user = await this.accountRepository.findOne({
+      where: { email },
+      relations: ['role'],
+    });
+    if (!user || !user.verified)
+      throw new Error('Email has not been registered');
+    const isTrue = await bcrypt.compare(password, user.password);
+    if (!isTrue) throw new Error('Password or email is not true');
+    else {
+      const payload = { id: user.id, email, roleId: user.role.id };
+      const accessToken = await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: '15m',
+      });
+      const refreshToken = await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: '7d',
+      });
+      return {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        roleId: user.role.id,
+        accessToken,
+        refreshToken,
+      };
+    }
   }
 }
