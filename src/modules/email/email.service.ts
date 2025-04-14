@@ -31,4 +31,20 @@ export class EmailService {
       throw new Error('Could not send OTP');
     }
   }
+
+  // Gửi email để resetpassword
+  async forgetPassword(email: string, url: string) {
+    const mailOptions = {
+      from: 'hongnhung16052003@gmail.com',
+      to: email,
+      subject: 'Reset your password',
+      text: `Click this link to reset: ${url}`,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new Error('Could not forget password');
+    }
+  }
 }

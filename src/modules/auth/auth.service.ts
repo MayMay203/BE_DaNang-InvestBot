@@ -16,7 +16,10 @@ export class AuthService implements OnModuleInit {
 
   private async addDefaultAdminAcc() {
     const adminAcc = await this.accountRepository.findOne({
-      where: { role: { id: 1 } },
+      where: {
+        role: { id: 1 },
+      },
+      relations: ['role'],
     });
     if (!adminAcc) {
       await this.register('admininvestbot@gmail.com', 'admin', 'admin123', 1);
@@ -38,6 +41,7 @@ export class AuthService implements OnModuleInit {
       where: {
         email,
       },
+      relations: ['role'],
     });
     if (existedAcc && !existedAcc?.verified)
       throw new Error('Email has registered but not yet verified');
@@ -74,9 +78,14 @@ export class AuthService implements OnModuleInit {
     if (!user || !user.verified)
       throw new Error('Email has not been registered');
     const isTrue = await bcrypt.compare(password, user.password);
-    if (!isTrue) throw new Error('Password or email is not true');
+    if (!isTrue) throw new Error('Password or email is incorrect');
     else {
-      const payload = { id: user.id, email, roleId: user.role.id };
+      const payload = {
+        id: user.id,
+        fullName: user.fullName,
+        email,
+        roleId: user.role.id,
+      };
       const accessToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_ACCESS_SECRET,
         expiresIn: '15m',
@@ -93,6 +102,84 @@ export class AuthService implements OnModuleInit {
         accessToken,
         refreshToken,
       };
+    }
+  }
+
+  async verifyOTP(email: string, otp: string) {
+    const user = await this.accountRepository.findOne({
+      where: { email },
+      relations: ['role'],
+    });
+    if (!user) throw new Error('Email has not been registered');
+    else {
+      if (user.OTP !== otp) {
+        throw new Error('The OTP you entered is incorrect');
+      } else if (new Date() > user.expiredAt) {
+        throw new Error('The OTP has expired');
+      } else {
+        this.accountRepository.update(user.id, { verified: true });
+        return 'OTP verification successful';
+      }
+    }
+  }
+
+  async resendOTP(email: string) {
+    const OTP = ((Math.random() * 1000000) | 0).toString().padStart(6, '0');
+    const expiredAt = new Date();
+    expiredAt.setMinutes(expiredAt.getMinutes() + 2);
+    this.accountRepository.update({ email }, { OTP, expiredAt });
+    await this.emailService.sendOTP(email, OTP);
+  }
+
+  async forgetPassword(email: string) {
+    const user = await this.accountRepository.findOne({
+      where: { email },
+      relations: ['role'],
+    });
+    if (user) {
+      const payload = {
+        id: user.id,
+        fullName: user.fullName,
+        email,
+        roleId: user.role.id,
+      };
+      const accessToken = await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: '15m',
+      });
+      console.log(accessToken)
+      const linkURL = `http://localhost:3000/forget-password?secret=${accessToken}`;
+      await this.emailService.forgetPassword(email, linkURL);
+    } else {
+      throw new Error('Email has not been registered');
+    }
+  }
+
+  async resetPassword(id: number, password: string) {
+    const user = await this.accountRepository.findOne({
+      where: { id },
+      relations: ['role'],
+    });
+    if (user) {
+      const saltOrRounds = 10;
+      const hashedPass = await bcrypt.hash(password, saltOrRounds);
+      await this.accountRepository.update(user.id, { password: hashedPass });
+    } else {
+      throw new Error('Email has not been registered');
+    }
+  }
+
+  async changePassword(id: number, currentPassword: string, newPassword: string) {
+    const user = await this.accountRepository.findOne({ where: { id } })
+    if (user) {
+      const isMatch = await bcrypt.compare(currentPassword, user?.password);
+      if (!isMatch)
+        throw new Error('Password is incorrect');
+      else {
+        const saltOrRounds = 10;
+        const newPass =await bcrypt.hash(newPassword, saltOrRounds)
+        await this.accountRepository.update(id, {password: newPass})
+      }
     }
   }
 }
