@@ -9,7 +9,7 @@ export class Role {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @OneToMany(() => Account, (account) => account.role)

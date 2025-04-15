@@ -18,8 +18,17 @@ export class Account {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  reason: string | null;
+
+  @Column({ nullable: true })
+  OTP: string;
+
   @Column()
-  reason: string;
+  expiredAt: Date;
+
+  @Column({ default: false })
+  verified: boolean;
 
   @ManyToOne(() => Role, (role) => role.accounts)
   role: Role;
