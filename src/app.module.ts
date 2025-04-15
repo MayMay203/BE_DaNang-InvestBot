@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -37,6 +42,14 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes('auth/reset-password', 'auth/change-password');
+      .exclude(
+        { path: '/', method: RequestMethod.GET },
+        { path: 'auth/login', method: RequestMethod.POST },
+        { path: 'auth/register', method: RequestMethod.POST },
+        { path: 'auth/resend-otp', method: RequestMethod.POST },
+        { path: 'auth/verify-otp', method: RequestMethod.POST },
+        { path: 'auth/forget-password', method: RequestMethod.POST },
+      )
+      .forRoutes('*');
   }
 }

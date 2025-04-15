@@ -91,7 +91,7 @@ export class AuthService implements OnModuleInit {
         expiresIn: '15m',
       });
       const refreshToken = await this.jwtService.signAsync(payload, {
-        secret: process.env.JWT_ACCESS_SECRET,
+        secret: process.env.JWT_REFRESH_SECRET,
         expiresIn: '7d',
       });
       return {
@@ -147,7 +147,7 @@ export class AuthService implements OnModuleInit {
         secret: process.env.JWT_ACCESS_SECRET,
         expiresIn: '15m',
       });
-      console.log(accessToken)
+      console.log(accessToken);
       const linkURL = `http://localhost:3000/forget-password?secret=${accessToken}`;
       await this.emailService.forgetPassword(email, linkURL);
     } else {
@@ -169,17 +169,37 @@ export class AuthService implements OnModuleInit {
     }
   }
 
-  async changePassword(id: number, currentPassword: string, newPassword: string) {
-    const user = await this.accountRepository.findOne({ where: { id } })
+  async changePassword(
+    id: number,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.accountRepository.findOne({ where: { id } });
     if (user) {
       const isMatch = await bcrypt.compare(currentPassword, user?.password);
-      if (!isMatch)
-        throw new Error('Password is incorrect');
+      if (!isMatch) throw new Error('Password is incorrect');
       else {
         const saltOrRounds = 10;
-        const newPass =await bcrypt.hash(newPassword, saltOrRounds)
-        await this.accountRepository.update(id, {password: newPass})
+        const newPass = await bcrypt.hash(newPassword, saltOrRounds);
+        await this.accountRepository.update(id, { password: newPass });
       }
     }
+  }
+
+  async refreshToken(user: any) {
+    const payload = {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      roleId: user.roleId,
+    };
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: '15m',
+    });
+    return {
+      ...payload,
+      accessToken,
+    };
   }
 }

@@ -270,4 +270,19 @@ export class AuthController {
       }
     }
   }
+
+  @Post('refresh-token')
+  async refreshToken(@Req() req: any, @Res() res: Response) {
+    const user = req.user;
+    const result = await this.authService.refreshToken(user);
+    res
+      .status(200)
+      .json(
+        new ResponseData<object>(
+          result,
+          StatusCodeHTTP.SUCCESS,
+          'Refresh token successfully',
+        ),
+      );
+  }
 }

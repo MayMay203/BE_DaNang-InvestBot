@@ -15,8 +15,12 @@ export class AuthMiddleware implements NestMiddleware {
       throw new UnauthorizedException('Access token is missing');
     }
     try {
-      const secret = process.env.JWT_ACCESS_SECRET;
+      const isRefresh = req.originalUrl.includes('/auth/refresh-token');
+      const secret = isRefresh
+        ? process.env.JWT_REFRESH_SECRET
+        : process.env.JWT_ACCESS_SECRET;
       const payload = this.jwtService.verify(token, { secret });
+
       req.user = payload;
       next();
     } catch (error) {
