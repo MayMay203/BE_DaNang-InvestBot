@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NestMiddleware,
   UnauthorizedException,
@@ -22,9 +23,23 @@ export class AuthMiddleware implements NestMiddleware {
       const payload = this.jwtService.verify(token, { secret });
 
       req.user = payload;
+
+      if (this.isAdminRoute(req.originalUrl)) {
+        if (req.user.roleId !== 1) {
+          throw new ForbiddenException('Admin role required');
+        }
+      }
       next();
     } catch (error) {
-      throw new UnauthorizedException('Invalid or expired token');
+      console.log(error);
+      throw new UnauthorizedException(error.message);
     }
+  }
+
+  private isAdminRoute(url: string): boolean {
+    // List các route yêu cầu admin
+    const adminRoutes = ['/manage-account'];
+
+    return adminRoutes.some((route) => url.startsWith(route));
   }
 }

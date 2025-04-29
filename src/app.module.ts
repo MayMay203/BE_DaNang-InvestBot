@@ -14,11 +14,13 @@ import { RoleModule } from './modules/role/role.module';
 import { Account } from './entities/account.entity';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { JwtService } from '@nestjs/jwt';
+import { AccountModule } from './modules/account/account.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     AuthModule,
+    AccountModule,
     RoleModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

@@ -40,16 +40,15 @@ export class AuthController {
     }
 
     try {
-      await this.authService.register(email, fullName, password, roleId);
+      const message = await this.authService.register(
+        email,
+        fullName,
+        password,
+        roleId,
+      );
       return res
         .status(201)
-        .json(
-          new ResponseData<null>(
-            null,
-            StatusCodeHTTP.CREATED,
-            MessageHTTP.CREATED,
-          ),
-        );
+        .json(new ResponseData<null>(null, StatusCodeHTTP.CREATED, message));
     } catch (error) {
       return res
         .status(400)

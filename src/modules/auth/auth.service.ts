@@ -44,7 +44,7 @@ export class AuthService implements OnModuleInit {
       relations: ['role'],
     });
     if (existedAcc && !existedAcc?.verified)
-      throw new Error('Email has registered but not yet verified');
+      return 'Email has registered but not yet verified';
     if (existedAcc) throw new Error('Email has registered');
     // handle OTP
     let OTP = ((Math.random() * 1000000) | 0).toString().padStart(6, '0');
@@ -67,7 +67,8 @@ export class AuthService implements OnModuleInit {
     });
 
     await this.emailService.sendOTP(email, OTP);
-    return await this.accountRepository.save(newUser);
+    await this.accountRepository.save(newUser);
+    return 'Please check your email to enter OTP';
   }
 
   async login(email: string, password: string) {
@@ -148,7 +149,7 @@ export class AuthService implements OnModuleInit {
         expiresIn: '15m',
       });
       console.log(accessToken);
-      const linkURL = `http://localhost:3000/forget-password?secret=${accessToken}`;
+      const linkURL = `http://localhost:3000/reset-password?secret=${accessToken}`;
       await this.emailService.forgetPassword(email, linkURL);
     } else {
       throw new Error('Email has not been registered');
