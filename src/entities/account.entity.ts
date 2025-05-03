@@ -1,5 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Role } from './role.entity';
+import { Conversation } from './conversation.entity';
 
 @Entity()
 export class Account {
@@ -32,4 +39,7 @@ export class Account {
 
   @ManyToOne(() => Role, (role) => role.accounts)
   role: Role;
+
+  @OneToMany(() => Conversation, (conversation) => conversation.account)
+  conversations: Conversation[];
 }
