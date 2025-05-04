@@ -17,7 +17,7 @@ export class AccessLevel {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @OneToMany(() => Material, (material) => material.accessLevel)

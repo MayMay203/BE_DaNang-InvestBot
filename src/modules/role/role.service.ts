@@ -1,17 +1,14 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/entities/role.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class RoleSeederService implements OnModuleInit {
+export class RoleService {
   constructor(
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
   ) {}
-  async onModuleInit() {
-    this.seedRolesIfEmpty();
-  }
-  private async seedRolesIfEmpty() {
+  async seedRolesIfEmpty() {
     const count = await this.roleRepository.count();
     if (count > 0) return;
 
