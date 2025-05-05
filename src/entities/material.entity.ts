@@ -14,13 +14,13 @@ export class Material {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ nullable: true, default: '' })
   text: string;
 
-  @Column()
+  @Column({ nullable: true, default: '' })
   url: string;
 
-  @Column({ default: false })
+  @Column({ default: true })
   isActive: boolean;
 
   @Column()

@@ -24,6 +24,7 @@ import { QuestionAnswer } from './entities/questionAnswer.entity';
 import { AccessLevelModule } from './modules/accessLevel/accessLevel.module';
 import { MaterialTypeModule } from './modules/materialType/materialType.module';
 import { SeederModule } from './modules/seeder/seeder.module';
+import { MaterialModule } from './modules/material/material.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { SeederModule } from './modules/seeder/seeder.module';
     RoleModule,
     AccessLevelModule,
     MaterialTypeModule,
+    MaterialModule,
     SeederModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
