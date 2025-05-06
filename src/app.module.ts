@@ -15,6 +15,16 @@ import { Account } from './entities/account.entity';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { JwtService } from '@nestjs/jwt';
 import { AccountModule } from './modules/account/account.module';
+import { AccessLevel } from './entities/accessLevel.entity';
+import { Conversation } from './entities/conversation.entity';
+import { KnowledgeStore } from './entities/knowledgeStore.entity';
+import { Material } from './entities/material.entity';
+import { MaterialType } from './entities/materialType.entity';
+import { QuestionAnswer } from './entities/questionAnswer.entity';
+import { AccessLevelModule } from './modules/accessLevel/accessLevel.module';
+import { MaterialTypeModule } from './modules/materialType/materialType.module';
+import { SeederModule } from './modules/seeder/seeder.module';
+import { MaterialModule } from './modules/material/material.module';
 
 @Module({
   imports: [
@@ -22,6 +32,10 @@ import { AccountModule } from './modules/account/account.module';
     AuthModule,
     AccountModule,
     RoleModule,
+    AccessLevelModule,
+    MaterialTypeModule,
+    MaterialModule,
+    SeederModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
@@ -31,8 +45,17 @@ import { AccountModule } from './modules/account/account.module';
         username: config.get('DB_USERNAME'),
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
-        entities: [Account, Role],
-        synchronize: true,
+        entities: [
+          Account,
+          Role,
+          AccessLevel,
+          Conversation,
+          KnowledgeStore,
+          Material,
+          MaterialType,
+          QuestionAnswer,
+        ],
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),

@@ -7,14 +7,14 @@ import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
-export class AuthService implements OnModuleInit {
+export class AuthService {
   constructor(
     @InjectRepository(Account) private accountRepository: Repository<Account>,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
   ) {}
 
-  private async addDefaultAdminAcc() {
+  async addDefaultAdminAcc() {
     const adminAcc = await this.accountRepository.findOne({
       where: {
         role: { id: 1 },
@@ -25,11 +25,6 @@ export class AuthService implements OnModuleInit {
       await this.register('admininvestbot@gmail.com', 'admin', 'admin123', 1);
     }
   }
-
-  async onModuleInit() {
-    await this.addDefaultAdminAcc();
-  }
-
   async register(
     email: string,
     fullName: string,
@@ -66,7 +61,7 @@ export class AuthService implements OnModuleInit {
       role: { id: roleId || defaultRole },
     });
 
-    await this.emailService.sendOTP(email, OTP);
+    if (roleId != 1) await this.emailService.sendOTP(email, OTP);
     await this.accountRepository.save(newUser);
     return 'Please check your email to enter OTP';
   }

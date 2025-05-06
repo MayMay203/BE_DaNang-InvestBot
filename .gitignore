@@ -54,3 +54,4 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+src/assets/file/dananginvestbot-94a2e9437a4d.json
