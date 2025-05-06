@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Res,
   UploadedFile,
@@ -115,7 +116,7 @@ export class MaterialController {
     }
   }
 
-  @Post('/update-material/:id')
+  @Patch('/update-material/:id')
   async updateMaterial(
     @Res() res: Response,
     @Param('id') id: number,
@@ -152,14 +153,14 @@ export class MaterialController {
     }
   }
 
-  @Post('/change-status')
+  @Patch('/change-status')
   async changeStatusMaterial(
     @Body() body: ChangeStatusDTO,
     @Res() res: Response,
   ) {
     try {
       const { id, status } = body;
-      await this.materialService.changeStatus(Number(id), status);
+      await this.materialService.changeStatus(id, status);
       return res
         .status(200)
         .json(

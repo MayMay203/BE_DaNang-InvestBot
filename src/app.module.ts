@@ -25,6 +25,7 @@ import { AccessLevelModule } from './modules/accessLevel/accessLevel.module';
 import { MaterialTypeModule } from './modules/materialType/materialType.module';
 import { SeederModule } from './modules/seeder/seeder.module';
 import { MaterialModule } from './modules/material/material.module';
+import { KnowledgeStoreModule } from './modules/knowledgeStore/knowledgeStore.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { MaterialModule } from './modules/material/material.module';
     MaterialTypeModule,
     MaterialModule,
     SeederModule,
+    KnowledgeStoreModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
