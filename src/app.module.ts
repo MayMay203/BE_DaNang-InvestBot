@@ -26,6 +26,7 @@ import { MaterialTypeModule } from './modules/materialType/materialType.module';
 import { SeederModule } from './modules/seeder/seeder.module';
 import { MaterialModule } from './modules/material/material.module';
 import { KnowledgeStoreModule } from './modules/knowledgeStore/knowledgeStore.module';
+import { ConversationModule } from './modules/conversation/conversation.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { KnowledgeStoreModule } from './modules/knowledgeStore/knowledgeStore.mo
     MaterialModule,
     SeederModule,
     KnowledgeStoreModule,
+    ConversationModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
