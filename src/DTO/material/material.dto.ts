@@ -9,23 +9,23 @@ import {
 export class MaterialDTO {
   @IsOptional()
   @IsString()
-  name?: string | string;
+  name?: string;
 
   @IsOptional()
   @IsString()
-  description?: string | undefined;
+  description?: string;
 
   @IsOptional()
   @IsString()
-  text?: string | undefined;
+  text?: string;
 
   @IsOptional()
   @IsString()
-  url?: string | undefined;
+  url?: string;
 
   @IsOptional()
   @IsString()
-  knowledgeStoreId?: string | undefined;
+  knowledgeStoreId?: string;
 
   @IsOptional()
   @IsBoolean()

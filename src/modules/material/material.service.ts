@@ -40,4 +40,45 @@ export class MaterialService {
     }
     return await this.materialRepository.save(materialData);
   }
+
+  async getAllMaterials() {
+    return await this.materialRepository.find({
+      relations: ['knowledgeStore', 'materialType', 'accessLevel'],
+    });
+  }
+
+  async getDetailMeterial(id: number) {
+    return await this.materialRepository.find({
+      where: { id },
+      relations: ['knowledgeStore', 'materialType', 'accessLevel'],
+    });
+  }
+
+  async updateMaterial(
+    id: number,
+    name: string,
+    description: string,
+    text: string,
+    url: string,
+  ) {
+    const material = await this.materialRepository.findOne({
+      where: { id },
+      relations: ['materialType'],
+    });
+    const updatedData = { name, description, updatedAt: new Date() };
+    if (material?.materialType.id === 2) {
+      updatedData['text'] = text;
+    } else if (material?.materialType.id === 3) {
+      updatedData['url'] = url;
+    }
+    await this.materialRepository.update(id, updatedData);
+    return await this.materialRepository.findOne({
+      where: { id },
+      relations: ['knowledgeStore', 'materialType', 'accessLevel'],
+    });
+  }
+
+  async changeStatus(id: number, status: boolean) {
+    await this.materialRepository.update(id, { isActive: status });
+  }
 }
