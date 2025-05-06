@@ -29,7 +29,7 @@ export class Material {
   @Column()
   updatedAt: Date;
 
-  @ManyToOne(() => KnowledgeStore, (knowledgeStore) => knowledgeStore.materials)
+  @ManyToOne(() => KnowledgeStore, (knowledgeStore) => knowledgeStore.materials,{nullable: true})
   knowledgeStore: KnowledgeStore;
 
   @ManyToOne(() => MaterialType, (materialType) => materialType.materials)

@@ -38,7 +38,7 @@ export class AuthMiddleware implements NestMiddleware {
 
   private isAdminRoute(url: string): boolean {
     // List các route yêu cầu admin
-    const adminRoutes = ['/manage-account'];
+    const adminRoutes = ['/manage-account', 'material', 'knowledge-store'];
 
     return adminRoutes.some((route) => url.startsWith(route));
   }

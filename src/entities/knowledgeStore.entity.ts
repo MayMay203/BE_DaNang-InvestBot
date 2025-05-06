@@ -18,8 +18,8 @@ export class KnowledgeStore {
   @Column()
   updatedAt: Date;
 
-  @Column()
-  status: number;
+  @Column({ default: 'Changed' })
+  status: string;
 
   @Column({ default: true })
   isActive: boolean;
