@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { ResponseData } from 'src/global/globalClass';
 import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
@@ -183,6 +192,34 @@ export class KnowledgeStoreController {
         .json(
           new ResponseData<null>(
             null,
+            StatusCodeHTTP.SUCCESS,
+            'Remove materials from knowledge store successfully!',
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message || 'An error occurred',
+          ),
+        );
+    }
+  }
+
+  @Post('/async')
+  async asyncKnowledgeStore(@Query('id') id: number, @Res() res: Response) {
+    try {
+      const materials =
+        await this.knowledgeStoreService.asyncKnowledgeStore(id);
+      // Gọi API phía bên python để xử lí lưu data input
+      return res
+        .status(200)
+        .json(
+          new ResponseData<Array<Object>>(
+            materials,
             StatusCodeHTTP.SUCCESS,
             'Remove materials from knowledge store successfully!',
           ),
