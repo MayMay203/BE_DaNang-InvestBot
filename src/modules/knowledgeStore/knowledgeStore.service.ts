@@ -77,4 +77,28 @@ export class KnowledgeStoreService {
       knowledgeStore: null as any,
     });
   }
+
+  async asyncKnowledgeStore(id: number) {
+    const materials = await this.materialRepository.find({
+      where: { knowledgeStore: { id } },
+      relations: ['materialType', 'accessLevel', 'knowledgeStore'],
+    });
+    const processed = materials.map((material) => {
+      let data = '';
+      if (material.materialType.id === 2) {
+        data = material.text;
+      } else {
+        data = material.url;
+      }
+      return {
+        id: material.id,
+        name: material.name,
+        materialType: material.materialType.name,
+        accessType: material.accessLevel.name,
+        knowledgeStore: material.knowledgeStore.name,
+        data,
+      };
+    });
+    return processed;
+  }
 }
