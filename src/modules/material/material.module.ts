@@ -9,5 +9,7 @@ import { GoogleDriveService } from '../googleDrive/googleDrive.service';
   imports: [TypeOrmModule.forFeature([Material])],
   providers: [MaterialService, GoogleDriveService],
   controllers: [MaterialController],
+// Phải export để cho phép dùng service này trong module khác
+  exports: [MaterialService],
 })
 export class MaterialModule {}

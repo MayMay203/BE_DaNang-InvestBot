@@ -5,6 +5,13 @@ import { Material } from 'src/entities/material.entity';
 import { Repository } from 'typeorm';
 import { GoogleDriveService } from '../googleDrive/googleDrive.service';
 
+type StoreGroup = {
+  materials: string[];
+  storeId: number;
+  storeName: string;
+  storeDesc: string;
+};
+
 @Injectable()
 export class MaterialService {
   constructor(
@@ -80,5 +87,42 @@ export class MaterialService {
 
   async changeStatus(id: number, status: boolean) {
     await this.materialRepository.update(id, { isActive: status });
+  }
+
+  async getAllMaterialsByStore() {
+    const materials = await this.materialRepository.find({
+      relations: ['knowledgeStore'],
+    });
+
+    const validMaterials = materials.filter(
+      (material) => material.knowledgeStore !== null,
+    );
+
+    const groupedMaterials = validMaterials.reduce<StoreGroup[]>(
+      (acc, material) => {
+        const storeId = material.knowledgeStore?.id;
+        const storeName = material.knowledgeStore?.name;
+        const storeDesc = material.knowledgeStore?.description;
+
+        if (!storeId || !storeName) return acc;
+
+        let store = acc.find((item) => item.storeId === storeId);
+
+        if (store) {
+          store.materials.push(`${material.name}_${material.id}`);
+        } else {
+          acc.push({
+            materials: [`${material.name}_${material.id}`],
+            storeId,
+            storeName,
+            storeDesc,
+          });
+        }
+
+        return acc;
+      },
+      [],
+    );
+    return groupedMaterials;
   }
 }

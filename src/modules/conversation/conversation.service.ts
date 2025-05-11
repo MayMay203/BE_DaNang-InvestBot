@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from 'src/entities/account.entity';
 import { Conversation } from 'src/entities/conversation.entity';
+import { Material } from 'src/entities/material.entity';
 import { QuestionAnswer } from 'src/entities/questionAnswer.entity';
 import { Repository } from 'typeorm';
 
@@ -26,6 +27,13 @@ export class ConversationService {
       account,
       createdAt: new Date(),
     });
+  }
+
+  async getAllConversationIds() {
+    const conversations = await this.conversationRepository.find({
+      select: ['id'],
+    });
+    return conversations.map(({ id }) => id);
   }
 
   async saveHistoryChat(

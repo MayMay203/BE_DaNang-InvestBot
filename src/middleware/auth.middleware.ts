@@ -42,7 +42,7 @@ export class AuthMiddleware implements NestMiddleware {
       '/manage-account',
       '/material',
       '/knowledge-store',
-      '/conversation',
+      // '/conversation',
     ];
 
     return adminRoutes.some((route) => url.startsWith(route));
