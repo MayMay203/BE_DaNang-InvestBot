@@ -16,10 +16,15 @@ import { KnowledgeStoreDTO } from 'src/DTO/knowledgeStore/knowledgeStore.dto';
 import { ChangeStatusDTO } from 'src/DTO/account/changeStatus.dto';
 import { AssignMaterialsToStoreDto } from 'src/DTO/knowledgeStore/assignMaterialsToKnowledgeStore.dto';
 import { RemoveMaterialDTO } from 'src/DTO/knowledgeStore/removeMaterial.dto';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 
 @Controller('knowledge-store')
 export class KnowledgeStoreController {
-  constructor(private readonly knowledgeStoreService: KnowledgeStoreService) {}
+  constructor(
+    private readonly knowledgeStoreService: KnowledgeStoreService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Get('/get-all')
   async getAllKnowledgeStore(@Res() res: Response) {
@@ -214,16 +219,26 @@ export class KnowledgeStoreController {
     try {
       const materials =
         await this.knowledgeStoreService.asyncKnowledgeStore(id);
-      // Gọi API phía bên python để xử lí lưu data input
-      return res
-        .status(200)
-        .json(
-          new ResponseData<Array<Object>>(
-            materials,
-            StatusCodeHTTP.SUCCESS,
-            'Remove materials from knowledge store successfully!',
-          ),
-        );
+
+      // handle proccess ducument from RAG server
+      const url = this.configService.get<string>('RAG_URL') ?? '';
+      const response = await axios.post(`${url}/documnents/process`, {
+        materials,
+      });
+
+      if (response.status === 200 && response.data.message) {
+        return res
+          .status(200)
+          .json(
+            new ResponseData<null>(
+              null,
+              StatusCodeHTTP.SUCCESS,
+              response.data.message,
+            ),
+          );
+      } else {
+        throw new Error('Failed to process documents');
+      }
     } catch (error) {
       return res
         .status(400)
