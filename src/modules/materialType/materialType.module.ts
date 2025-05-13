@@ -5,7 +5,7 @@ import { MaterialTypeService } from './materialType.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MaterialType])],
-    providers: [MaterialTypeService],
+  providers: [MaterialTypeService],
   exports: [MaterialTypeService]
 })
 export class MaterialTypeModule {}

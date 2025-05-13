@@ -14,8 +14,8 @@ export class Material {
   @Column()
   description: string;
 
-  @Column({ nullable: true, default: '' })
-  text: string;
+  @Column({ type: 'longtext', nullable: true })
+  text?: string;
 
   @Column({ nullable: true, default: '' })
   url: string;
@@ -29,7 +29,11 @@ export class Material {
   @Column()
   updatedAt: Date;
 
-  @ManyToOne(() => KnowledgeStore, (knowledgeStore) => knowledgeStore.materials,{nullable: true})
+  @ManyToOne(
+    () => KnowledgeStore,
+    (knowledgeStore) => knowledgeStore.materials,
+    { nullable: true },
+  )
   knowledgeStore: KnowledgeStore;
 
   @ManyToOne(() => MaterialType, (materialType) => materialType.materials)

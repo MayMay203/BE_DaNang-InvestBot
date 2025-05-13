@@ -39,8 +39,12 @@ export class AccountController {
     @Res() res: Response,
   ) {
     try {
-      const { id, status } = body;
-      const message = await this.accountService.changeStatusAccount(id, status);
+      const { id, status, reason } = body;
+      const message = await this.accountService.changeStatusAccount(
+        id,
+        status,
+        reason,
+      );
       return res
         .status(200)
         .json(new ResponseData<null>(null, StatusCodeHTTP.SUCCESS, message));

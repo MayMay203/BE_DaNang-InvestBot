@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ChangeStatusDTO {
   @IsNumber()
@@ -6,4 +6,8 @@ export class ChangeStatusDTO {
 
   @IsBoolean()
   status: boolean;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
 }
