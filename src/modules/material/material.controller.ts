@@ -6,7 +6,7 @@ import {
   Patch,
   Post,
   Res,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
@@ -15,7 +15,7 @@ import { MaterialDTO } from 'src/DTO/material/material.dto';
 import { Response } from 'express';
 import { ResponseData } from 'src/global/globalClass';
 import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ChangeStatusDTO } from 'src/DTO/account/changeStatus.dto';
 
 @Controller('material')
@@ -23,25 +23,26 @@ export class MaterialController {
   constructor(private readonly materialService: MaterialService) {}
 
   @Post('/upload-material')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files')) // 'files' là tên field trong form-data
   async addMaterial(
     @Body(new ValidationPipe()) body: MaterialDTO,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
     @Res() res: Response,
   ) {
     try {
-      if (Number(body.materialTypeId) === 1 && !file) {
+      if (Number(body.materialTypeId) === 1 && (!files || files.length === 0)) {
         return res
           .status(400)
           .json(
             new ResponseData<null>(
               null,
               StatusCodeHTTP.BAD_REQUEST,
-              'File is required',
+              'At least one file is required',
             ),
           );
       }
-      const data = await this.materialService.addMaterial(body, file);
+
+      const data = await this.materialService.addMaterial(body, files);
       return res
         .status(201)
         .json(

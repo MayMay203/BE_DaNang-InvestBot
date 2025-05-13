@@ -22,7 +22,7 @@ export class AuthService {
       relations: ['role'],
     });
     if (!adminAcc) {
-      await this.register('admininvestbot@gmail.com', 'admin', 'admin123', 1);
+      await this.register('admininvestbot@gmail.com', 'admin', 'Admin123@@', 1);
     }
   }
   async register(

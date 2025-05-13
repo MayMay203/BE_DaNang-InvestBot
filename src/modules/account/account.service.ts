@@ -11,12 +11,14 @@ export class AccountService {
   ) {}
 
   async getAllAccount() {
-    return await this.accountRepository.find();
+    return (await this.accountRepository.find({ relations: ['role'] })).reverse();
   }
 
-  async changeStatusAccount(id: number, status: boolean) {
+  async changeStatusAccount(id: number, status: boolean, reason:string|undefined) {
     try {
-      await this.accountRepository.update({ id }, { isActive: status });
+      // handle send email to inform
+      if (status === true) reason = '';
+      await this.accountRepository.update({ id }, { isActive: status, reason });
       return 'Update account successfully!';
     } catch (error) {
       throw new Error('Update account unsuccessfully');
