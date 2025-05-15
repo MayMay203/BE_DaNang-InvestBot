@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Res,
   UploadedFiles,
   UseInterceptors,
@@ -66,9 +67,9 @@ export class MaterialController {
   }
 
   @Get('/get-all-materials')
-  async getAllMaterials(@Res() res: Response) {
+  async getAllMaterials(@Res() res: Response, @Query('store') store?: string) {
     try {
-      const materials = await this.materialService.getAllMaterials();
+      const materials = await this.materialService.getAllMaterials(store);
       return res
         .status(200)
         .json(
@@ -100,6 +101,32 @@ export class MaterialController {
         .json(
           new ResponseData<Array<Object>>(
             material,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message || 'An error occurred',
+          ),
+        );
+    }
+  }
+
+  @Get('/get-all-materials-by-store-id')
+  async getAllMaterialsByStoreId(@Res() res: Response) {
+    try {
+      const materials = await this.materialService.getAllMaterialsByStore();
+      return res
+        .status(200)
+        .json(
+          new ResponseData<Array<Object>>(
+            materials,
             StatusCodeHTTP.SUCCESS,
             MessageHTTP.SUCCESS,
           ),

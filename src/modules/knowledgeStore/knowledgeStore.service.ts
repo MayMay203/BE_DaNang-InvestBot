@@ -83,10 +83,11 @@ export class KnowledgeStoreService {
       where: { knowledgeStore: { id } },
       relations: ['materialType', 'accessLevel', 'knowledgeStore'],
     });
+
     const processed = materials.map((material) => {
       let data = '';
       if (material.materialType.id === 2) {
-        data = material.text;
+        data = material.text || '';
       } else {
         data = material.url;
       }
@@ -99,6 +100,13 @@ export class KnowledgeStoreService {
         data,
       };
     });
+
+    const store = await this.knowledgeStoreRepository.findOneBy({ id });
+    if (store) {
+      store.status = 'Asynced'; 
+      await this.knowledgeStoreRepository.save(store);
+    }
+
     return processed;
   }
 }
