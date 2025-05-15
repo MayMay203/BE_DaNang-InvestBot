@@ -71,11 +71,25 @@ export class MaterialService {
     return await this.materialRepository.save(materialData);
   }
 
-  async getAllMaterials() {
-    const materials = await this.materialRepository.find({
+  async getAllMaterials(store?: string) {
+    let whereCondition = {};
+    if (store && store != 'empty') {
+      whereCondition = { knowledgeStore: { id: store } };
+    }
+
+    let materials = await this.materialRepository.find({
+      where: whereCondition,
       relations: ['knowledgeStore', 'materialType', 'accessLevel'],
+      order: { id: 'DESC' },
     });
-    return materials.reverse();
+
+    if (store === 'empty') {
+      materials = materials.filter(
+        (material) => material.knowledgeStore === null,
+      );
+    }
+
+    return materials;
   }
 
   async getDetailMeterial(id: number) {

@@ -84,7 +84,7 @@ export class ConversationController {
     @Req() req: Request,
   ) {
     try {
-      const accessToken = req.headers['authorization']?.split(' ')[1]
+      const accessToken = req.headers['authorization']?.split(' ')[1];
       const { conversationId, query } = body;
       const idList = await this.conversationService.getAllConversationIds();
       if (!idList.includes(conversationId)) {
@@ -93,17 +93,18 @@ export class ConversationController {
       const materialsByStore =
         await this.materialService.getAllMaterialsByStore();
       const url = this.configService.get<string>('RAG_URL') ?? '';
+      console.log('materialByStores', materialsByStore);
       const data = await axios.post(`${url}/conversations/send-message`, {
         conversationId,
         query,
         materialsByStore,
-        accessToken
+        accessToken,
       });
-      await this.conversationService.saveHistoryChat(
-        conversationId,
-        query,
-        data.data,
-      );
+      // await this.conversationService.saveHistoryChat(
+      //   conversationId,
+      //   query,
+      //   data.data,
+      // );
       return res
         .status(200)
         .json(
