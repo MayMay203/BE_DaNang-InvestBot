@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { I18nContext } from 'nestjs-i18n';
 import { KnowledgeStore } from 'src/entities/knowledgeStore.entity';
 import { Material } from 'src/entities/material.entity';
 import { Repository } from 'typeorm';
@@ -13,11 +14,11 @@ export class KnowledgeStoreService {
     private materialRepository: Repository<Material>,
   ) {}
 
-  async createKnowledgeStore(name: string, description: string) {
+  async createKnowledgeStore(name: string, description: string, i18n: I18nContext) {
     const data = await this.knowledgeStoreRepository.findOne({
       where: { name },
     });
-    if (data) throw new Error('Name is existed!');
+    if (data) throw new Error(i18n.t('common.existed_name'));
     const newData = {
       name,
       description,
@@ -44,11 +45,11 @@ export class KnowledgeStoreService {
     return await this.knowledgeStoreRepository.findOne({ where: { id } });
   }
 
-  async addMaterials(knowledgeStoreId: number, materialIds: number[]) {
+  async addMaterials(knowledgeStoreId: number, materialIds: number[], i18n:I18nContext) {
     const knowledgeStore = await this.knowledgeStoreRepository.findOne({
       where: { id: knowledgeStoreId },
     });
-    if (!knowledgeStore) throw new Error('KnowledgeStore not found');
+    if (!knowledgeStore) throw new Error(i18n.t('common.knowledge_store_not_found'));
 
     for (const id of materialIds) {
       await this.materialRepository.update(id, {
@@ -57,19 +58,19 @@ export class KnowledgeStoreService {
     }
   }
 
-  async removeMaterial(knowledgeStoreId: number, materialId: number) {
+  async removeMaterial(knowledgeStoreId: number, materialId: number, i18n: I18nContext) {
     const material = await this.materialRepository.findOne({
       where: { id: materialId },
       relations: ['knowledgeStore'],
     });
 
     if (!material) {
-      throw new Error('Material not found');
+      throw new Error(i18n.t('common.material_not_found'));
     }
 
     if (material.knowledgeStore?.id !== knowledgeStoreId) {
       throw new Error(
-        'This material is not assigned to the specified KnowledgeStore',
+        i18n.t('common.not_assigned_material'),
       );
     }
 

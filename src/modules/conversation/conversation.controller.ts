@@ -8,6 +8,7 @@ import { QueryDTO } from 'src/DTO/conversation/query.dto';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { MaterialService } from '../material/material.service';
+import { I18n, I18nContext } from 'nestjs-i18n';
 
 @Controller('/conversation')
 export class ConversationController {
@@ -20,10 +21,13 @@ export class ConversationController {
   async createConversation(
     @Res() res: Response,
     @Query('accountId') accountId: number,
+    @I18n() i18n: I18nContext,
   ) {
     try {
-      const conversation =
-        await this.conversationService.createConversation(accountId);
+      const conversation = await this.conversationService.createConversation(
+        accountId,
+        i18n,
+      );
       return res
         .status(201)
         .json(
@@ -47,13 +51,18 @@ export class ConversationController {
   }
 
   @Post('/save-history-chat')
-  async saveHistoryChat(@Body() body: QuestionAnswerDTO, @Res() res: Response) {
+  async saveHistoryChat(
+    @Body() body: QuestionAnswerDTO,
+    @Res() res: Response,
+    @I18n() i18n: I18nContext,
+  ) {
     try {
       const { questionContent, answerContent, conversationId } = body;
       const message = await this.conversationService.saveHistoryChat(
         conversationId,
         questionContent,
         answerContent,
+        i18n
       );
       return res
         .status(201)

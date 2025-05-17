@@ -18,6 +18,7 @@ import { AssignMaterialsToStoreDto } from 'src/DTO/knowledgeStore/assignMaterial
 import { RemoveMaterialDTO } from 'src/DTO/knowledgeStore/removeMaterial.dto';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { I18n, I18nContext } from 'nestjs-i18n';
 
 @Controller('knowledge-store')
 export class KnowledgeStoreController {
@@ -56,6 +57,7 @@ export class KnowledgeStoreController {
   async createNewKnowledgeStore(
     @Body() body: KnowledgeStoreDTO,
     @Res() res: Response,
+    @I18n() i18n: I18nContext
   ) {
     try {
       const { name, description } = body;
@@ -63,6 +65,7 @@ export class KnowledgeStoreController {
         await this.knowledgeStoreService.createKnowledgeStore(
           name,
           description,
+          i18n
         );
       return res
         .status(201)
@@ -155,12 +158,14 @@ export class KnowledgeStoreController {
   async addMaterials(
     @Body() body: AssignMaterialsToStoreDto,
     @Res() res: Response,
+    @I18n() i18n: I18nContext
   ) {
     try {
       const { knowledgeStoreId, materialIds } = body;
       await this.knowledgeStoreService.addMaterials(
         knowledgeStoreId,
         materialIds,
+        i18n
       );
       return res
         .status(200)
@@ -185,12 +190,13 @@ export class KnowledgeStoreController {
   }
 
   @Post('/remove-material')
-  async removeMaterial(@Body() body: RemoveMaterialDTO, @Res() res: Response) {
+  async removeMaterial(@Body() body: RemoveMaterialDTO, @Res() res: Response, @I18n() i18n: I18nContext) {
     try {
       const { knowledgeStoreId, materialId } = body;
       await this.knowledgeStoreService.removeMaterial(
         knowledgeStoreId,
         materialId,
+        i18n
       );
       return res
         .status(200)
