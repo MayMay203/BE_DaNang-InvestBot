@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async addDefaultAdminAcc() {
+  async addDefaultAdminAcc(i18n: I18nContext | null) {
     const adminAcc = await this.accountRepository.findOne({
       where: {
         role: { id: 1 },
@@ -22,7 +23,13 @@ export class AuthService {
       relations: ['role'],
     });
     if (!adminAcc) {
-      await this.register('admininvestbot@gmail.com', 'admin', 'Admin123@@', 1);
+      await this.register(
+        'admininvestbot@gmail.com',
+        'admin',
+        'Admin123@@',
+        1,
+        i18n,
+      );
     }
   }
   async register(
@@ -30,6 +37,7 @@ export class AuthService {
     fullName: string,
     password: string,
     roleId: number | null,
+    i18n: I18nContext | null,
   ) {
     // check existed account
     const existedAcc = await this.accountRepository.findOne({
@@ -38,9 +46,13 @@ export class AuthService {
       },
       relations: ['role'],
     });
-    if (existedAcc && !existedAcc?.verified)
-      return 'Email has registered but not yet verified';
-    if (existedAcc) throw new Error('Email has registered');
+    if (existedAcc && !existedAcc?.verified) {
+      return i18n?.t('common.not_verified_email');
+    }
+    if (existedAcc) {
+      const message = i18n?.t('common.registered_email');
+      throw new Error(message);
+    }
     // handle OTP
     let OTP = ((Math.random() * 1000000) | 0).toString().padStart(6, '0');
     const expiredAt = new Date();
@@ -63,19 +75,23 @@ export class AuthService {
 
     if (roleId != 1) await this.emailService.sendOTP(email, OTP);
     await this.accountRepository.save(newUser);
-    return 'Please check your email to enter OTP';
+    return i18n?.t('message_enter_OTP') as string;
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, i18n: I18nContext) {
     const user = await this.accountRepository.findOne({
       where: { email },
       relations: ['role'],
     });
     if (!user || !user.verified)
-      throw new Error('Email has not been registered');
+      throw new Error(i18n.t('common.not_registerd_email'));
     const isTrue = await bcrypt.compare(password, user.password);
-    if (!isTrue) throw new Error('Password or email is incorrect');
-    else {
+    if (!isTrue) {
+      const message = (await i18n.t(
+        'common.incorrect_email_and_password',
+      )) as string;
+      throw new Error(message);
+    } else {
       const payload = {
         id: user.id,
         fullName: user.fullName,
@@ -84,11 +100,11 @@ export class AuthService {
       };
       const accessToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_ACCESS_SECRET,
-        expiresIn: '1d',
+        expiresIn: '30s',
       });
       const refreshToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_REFRESH_SECRET,
-        expiresIn: '7d',
+        expiresIn: '50s',
       });
       return {
         id: user.id,
@@ -101,20 +117,22 @@ export class AuthService {
     }
   }
 
-  async verifyOTP(email: string, otp: string) {
+  async verifyOTP(email: string, otp: string, i18n: I18nContext) {
     const user = await this.accountRepository.findOne({
       where: { email },
       relations: ['role'],
     });
-    if (!user) throw new Error('Email has not been registered');
-    else {
+    if (!user) {
+      const message = i18n.t('common.email_not_registered');
+      throw new Error(message);
+    } else {
       if (user.OTP !== otp) {
-        throw new Error('The OTP you entered is incorrect');
+        throw new Error(i18n.t('common.incorrect_otp'));
       } else if (new Date() > user.expiredAt) {
-        throw new Error('The OTP has expired');
+        throw new Error(i18n.t('common.expired_OTP'));
       } else {
         this.accountRepository.update(user.id, { verified: true });
-        return 'OTP verification successful';
+        return i18n.t('common.verified_success_OTP');
       }
     }
   }
@@ -127,7 +145,7 @@ export class AuthService {
     await this.emailService.sendOTP(email, OTP);
   }
 
-  async forgetPassword(email: string) {
+  async forgetPassword(email: string, i18n: I18nContext) {
     const user = await this.accountRepository.findOne({
       where: { email },
       relations: ['role'],
@@ -147,11 +165,11 @@ export class AuthService {
       const linkURL = `http://localhost:3000/reset-password?secret=${accessToken}`;
       await this.emailService.forgetPassword(email, linkURL);
     } else {
-      throw new Error('Email has not been registered');
+      throw new Error(i18n.t('common.not_registered_email'));
     }
   }
 
-  async resetPassword(id: number, password: string) {
+  async resetPassword(id: number, password: string, i18n: I18nContext) {
     const user = await this.accountRepository.findOne({
       where: { id },
       relations: ['role'],
@@ -161,7 +179,7 @@ export class AuthService {
       const hashedPass = await bcrypt.hash(password, saltOrRounds);
       await this.accountRepository.update(user.id, { password: hashedPass });
     } else {
-      throw new Error('Email has not been registered');
+      throw new Error(i18n.t('common.not_registered_email'));
     }
   }
 
@@ -169,11 +187,12 @@ export class AuthService {
     id: number,
     currentPassword: string,
     newPassword: string,
+    i18n: I18nContext,
   ) {
     const user = await this.accountRepository.findOne({ where: { id } });
     if (user) {
       const isMatch = await bcrypt.compare(currentPassword, user?.password);
-      if (!isMatch) throw new Error('Password is incorrect');
+      if (!isMatch) throw new Error(i18n.t('common.incorrect_password'));
       else {
         const saltOrRounds = 10;
         const newPass = await bcrypt.hash(newPassword, saltOrRounds);
@@ -191,7 +210,7 @@ export class AuthService {
     };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: '15m',
+      expiresIn: '30s',
     });
     return {
       ...payload,

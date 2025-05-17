@@ -27,6 +27,13 @@ import { SeederModule } from './modules/seeder/seeder.module';
 import { MaterialModule } from './modules/material/material.module';
 import { KnowledgeStoreModule } from './modules/knowledgeStore/knowledgeStore.module';
 import { ConversationModule } from './modules/conversation/conversation.module';
+import {
+  I18nModule,
+  AcceptLanguageResolver,
+  QueryResolver,
+  HeaderResolver,
+} from 'nestjs-i18n';
+import * as path from 'path';
 
 @Module({
   imports: [
@@ -62,6 +69,14 @@ import { ConversationModule } from './modules/conversation/conversation.module';
         synchronize: false,
       }),
       inject: [ConfigService],
+    }),
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      loaderOptions: {
+        path: path.join(__dirname, '../src/i18n'),
+        watch: true,
+      },
+      resolvers: [{ use: HeaderResolver, options: ['accept-language'] }],
     }),
   ],
   controllers: [AppController],

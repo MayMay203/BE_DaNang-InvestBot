@@ -3,6 +3,7 @@ import { RoleService } from '../role/role.service';
 import { AccessLevelService } from '../accessLevel/accessLevel.service';
 import { MaterialTypeService } from '../materialType/materialType.service';
 import { AuthService } from '../auth/auth.service';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class SeederService implements OnModuleInit {
@@ -11,6 +12,7 @@ export class SeederService implements OnModuleInit {
     private readonly accessLevelService: AccessLevelService,
     private readonly materialTypeService: MaterialTypeService,
     private readonly authService: AuthService,
+    private readonly i18n: I18nService,
   ) {}
 
   async onModuleInit() {

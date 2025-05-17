@@ -17,6 +17,7 @@ export class AuthMiddleware implements NestMiddleware {
     }
     try {
       const isRefresh = req.originalUrl.includes('/auth/refresh-token');
+      console.log(isRefresh);
       const secret = isRefresh
         ? process.env.JWT_REFRESH_SECRET
         : process.env.JWT_ACCESS_SECRET;

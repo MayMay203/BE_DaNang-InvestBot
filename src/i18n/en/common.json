@@ -1,0 +1,13 @@
+{
+  "auth.email_not_registered": "Email has not been registered",
+  "incorrect_email_and_password": "Email or password are incorrect",
+  "not_verified_email": "Email has registered but not yet verified",
+  "registered_email": "Email has registered before",
+  "message_enter_OTP": "Please check your email to enter OTP",
+  "not_registered_email": "Email has not been registered",
+  "incorrect_OTP": "The OTP you entered is incorrect",
+  "expired_OTP": "The OTP has expired",
+  "verified_success_OTP": "OTP verification successful",
+  "incorrect_password": "Password is incorrect",
+  "not_match_password": "Password and confirmPassword do not match"
+}
