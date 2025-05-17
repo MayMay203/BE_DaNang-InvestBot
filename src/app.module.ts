@@ -71,7 +71,7 @@ import * as path from 'path';
       inject: [ConfigService],
     }),
     I18nModule.forRoot({
-      fallbackLanguage: 'en',
+      fallbackLanguage: 'vi',
       loaderOptions: {
         path: path.join(__dirname, '../src/i18n'),
         watch: true,

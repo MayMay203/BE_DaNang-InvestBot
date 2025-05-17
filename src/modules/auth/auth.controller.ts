@@ -51,7 +51,9 @@ export class AuthController {
       );
       return res
         .status(201)
-        .json(new ResponseData<null>(null, StatusCodeHTTP.CREATED, message));
+        .json(
+          new ResponseData<null>(null, StatusCodeHTTP.CREATED, message || ''),
+        );
     } catch (error) {
       return res
         .status(400)
@@ -131,10 +133,11 @@ export class AuthController {
   async resendOTP(
     @Query(new ValidationPipe()) query: EmailDTO,
     @Res() res: Response,
+    @I18n() i18n: I18nContext,
   ) {
     try {
       const { email } = query;
-      await this.authService.resendOTP(email);
+      await this.authService.resendOTP(email, i18n);
       res
         .status(200)
         .json(

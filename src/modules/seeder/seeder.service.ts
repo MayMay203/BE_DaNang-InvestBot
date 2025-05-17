@@ -19,6 +19,6 @@ export class SeederService implements OnModuleInit {
     await this.roleService.seedRolesIfEmpty();
     await this.materialTypeService.seedMaterialTypeIfEmpty();
     await this.accessLevelService.seedAccessIfEmpty();
-    await this.authService.addDefaultAdminAcc();
+    await this.authService.addDefaultAdminAcc(null);
   }
 }

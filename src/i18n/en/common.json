@@ -9,5 +9,19 @@
   "expired_OTP": "The OTP has expired",
   "verified_success_OTP": "OTP verification successful",
   "incorrect_password": "Password is incorrect",
-  "not_match_password": "Password and confirmPassword do not match"
+  "not_match_password": "Password and confirmPassword do not match",
+  "account_not_found": "Account not found!",
+  "conversation_not_found": "Conversation not found!",
+  "your_OTP_code": "Your OTP Code",
+  "your_OTP_code_is": "Your OTP code is: ",
+  "not_send_OTP": "Could not send OTP",
+  "reset_your_password": "Reset your password",
+  "click_link_to_reset": "Click link to reset: ",
+  "not_forget_password": "Could not forget password",
+  "existed_name": "This name is existed!",
+  "knowledge_store_not_found": "KnowledgeStore not found",
+  "material_not_found": "Material not found",
+  "not_assigned_material": "This material is not assigned to the specified KnowledgeStore",
+  "at_least_one_file": "At least one file is required",
+  "success_update": "Update status successfully"
 }

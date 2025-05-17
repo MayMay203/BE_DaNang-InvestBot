@@ -73,9 +73,9 @@ export class AuthService {
       role: { id: roleId || defaultRole },
     });
 
-    if (roleId != 1) await this.emailService.sendOTP(email, OTP);
+    if (roleId != 1) await this.emailService.sendOTP(email, OTP, i18n);
     await this.accountRepository.save(newUser);
-    return i18n?.t('message_enter_OTP') as string;
+    return i18n?.t('common.message_enter_OTP') as string;
   }
 
   async login(email: string, password: string, i18n: I18nContext) {
@@ -84,7 +84,7 @@ export class AuthService {
       relations: ['role'],
     });
     if (!user || !user.verified)
-      throw new Error(i18n.t('common.not_registerd_email'));
+      throw new Error(i18n.t('common.not_registered_email'));
     const isTrue = await bcrypt.compare(password, user.password);
     if (!isTrue) {
       const message = (await i18n.t(
@@ -127,7 +127,7 @@ export class AuthService {
       throw new Error(message);
     } else {
       if (user.OTP !== otp) {
-        throw new Error(i18n.t('common.incorrect_otp'));
+        throw new Error(i18n.t('common.incorrect_OTP'));
       } else if (new Date() > user.expiredAt) {
         throw new Error(i18n.t('common.expired_OTP'));
       } else {
@@ -137,12 +137,12 @@ export class AuthService {
     }
   }
 
-  async resendOTP(email: string) {
+  async resendOTP(email: string, i18n: I18nContext) {
     const OTP = ((Math.random() * 1000000) | 0).toString().padStart(6, '0');
     const expiredAt = new Date();
     expiredAt.setMinutes(expiredAt.getMinutes() + 2);
     this.accountRepository.update({ email }, { OTP, expiredAt });
-    await this.emailService.sendOTP(email, OTP);
+    await this.emailService.sendOTP(email, OTP, i18n);
   }
 
   async forgetPassword(email: string, i18n: I18nContext) {
@@ -163,7 +163,7 @@ export class AuthService {
       });
       console.log(accessToken);
       const linkURL = `http://localhost:3000/reset-password?secret=${accessToken}`;
-      await this.emailService.forgetPassword(email, linkURL);
+      await this.emailService.forgetPassword(email, linkURL, i18n);
     } else {
       throw new Error(i18n.t('common.not_registered_email'));
     }

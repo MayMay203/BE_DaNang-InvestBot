@@ -18,6 +18,7 @@ import { ResponseData } from 'src/global/globalClass';
 import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ChangeStatusDTO } from 'src/DTO/account/changeStatus.dto';
+import { I18n, I18nContext } from 'nestjs-i18n';
 
 @Controller('material')
 export class MaterialController {
@@ -29,6 +30,7 @@ export class MaterialController {
     @Body(new ValidationPipe()) body: MaterialDTO,
     @UploadedFiles() files: Express.Multer.File[],
     @Res() res: Response,
+    @I18n() i18n: I18nContext
   ) {
     try {
       if (Number(body.materialTypeId) === 1 && (!files || files.length === 0)) {
@@ -38,7 +40,7 @@ export class MaterialController {
             new ResponseData<null>(
               null,
               StatusCodeHTTP.BAD_REQUEST,
-              'At least one file is required',
+              i18n.t('common.at_least_one_file'),
             ),
           );
       }
@@ -185,6 +187,7 @@ export class MaterialController {
   async changeStatusMaterial(
     @Body() body: ChangeStatusDTO,
     @Res() res: Response,
+    @I18n() i18n: I18nContext
   ) {
     try {
       const { id, status } = body;
@@ -195,7 +198,7 @@ export class MaterialController {
           new ResponseData<null>(
             null,
             StatusCodeHTTP.SUCCESS,
-            'Update status successfully',
+            i18n.t('common.success_update'),
           ),
         );
     } catch (error) {
