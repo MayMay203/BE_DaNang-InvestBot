@@ -23,5 +23,6 @@
   "material_not_found": "Không tìm thấy Tài liệu",
   "not_assigned_material": "Tài liệu chưa được gán cho kho kiến thức này",
   "at_least_one_file": "Cần ít nhất một tệp",
-  "success_update": "Cập nhật trạng thái thành công"
+  "success_update": "Cập nhật trạng thái thành công",
+  "locked_account": "Tài khoản đã bị khoá"
 }

@@ -23,5 +23,6 @@
   "material_not_found": "Material not found",
   "not_assigned_material": "This material is not assigned to the specified KnowledgeStore",
   "at_least_one_file": "At least one file is required",
-  "success_update": "Update status successfully"
+  "success_update": "Update status successfully",
+  "locked_account": "The account has been locked"
 }
