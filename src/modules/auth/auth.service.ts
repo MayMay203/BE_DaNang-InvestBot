@@ -85,6 +85,9 @@ export class AuthService {
     });
     if (!user || !user.verified)
       throw new Error(i18n.t('common.not_registered_email'));
+
+    if (!user.isActive) throw new Error(i18n.t('common.locked_account'));
+
     const isTrue = await bcrypt.compare(password, user.password);
     if (!isTrue) {
       const message = (await i18n.t(
@@ -97,14 +100,15 @@ export class AuthService {
         fullName: user.fullName,
         email,
         roleId: user.role.id,
+        isActive: user.isActive
       };
       const accessToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_ACCESS_SECRET,
-        expiresIn: '30s',
+        expiresIn: '1h',
       });
       const refreshToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_REFRESH_SECRET,
-        expiresIn: '50s',
+        expiresIn: '1d',
       });
       return {
         id: user.id,
@@ -156,12 +160,12 @@ export class AuthService {
         fullName: user.fullName,
         email,
         roleId: user.role.id,
+        isActive: user.isActive
       };
       const accessToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_ACCESS_SECRET,
-        expiresIn: '15m',
+        expiresIn: '5m',
       });
-      console.log(accessToken);
       const linkURL = `http://localhost:3000/reset-password?secret=${accessToken}`;
       await this.emailService.forgetPassword(email, linkURL, i18n);
     } else {
@@ -207,6 +211,7 @@ export class AuthService {
       fullName: user.fullName,
       email: user.email,
       roleId: user.roleId,
+      isActive: user.isActive
     };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET,

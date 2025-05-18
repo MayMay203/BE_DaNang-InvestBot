@@ -102,7 +102,6 @@ export class ConversationController {
       const materialsByStore =
         await this.materialService.getAllMaterialsByStore();
       const url = this.configService.get<string>('RAG_URL') ?? '';
-      console.log('materialByStores', materialsByStore);
       const data = await axios.post(`${url}/conversations/send-message`, {
         conversationId,
         query,

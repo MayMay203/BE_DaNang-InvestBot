@@ -23,5 +23,16 @@
   "material_not_found": "Material not found",
   "not_assigned_material": "This material is not assigned to the specified KnowledgeStore",
   "at_least_one_file": "At least one file is required",
-  "success_update": "Update status successfully"
+  "success_update": "Update status successfully",
+  "locked_account": "The account has been locked",
+  "reset_password_expiry_notice": "Note: this link will expire in 5 minutes.",
+  "access_token_missing": "Access token is missing",
+  "account_blocked": "Your account has been blocked",
+  "admin_required": "Administrator privileges required",
+  "account_locked_notice": "Your account has been locked.",
+  "lock_reason": "Reason",
+  "account_locked_subject": "Account Locked Notification",
+  "email_send_fail": "Failed to send notification email.",
+  "account_unlocked_notice": "Your account has been approved for reactivation.",
+  "account_unlocked_subject": "Account Reactivation Notification"
 }
