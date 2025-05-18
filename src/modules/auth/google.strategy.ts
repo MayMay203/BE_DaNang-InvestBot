@@ -14,20 +14,26 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
+  // ✅ Override để thêm prompt
+  authorizationParams(): Record<string, string> {
+    return {
+      prompt: 'select_account',
+      access_type: 'offline',
+    };
+  }
+
   async validate(
-    req: Request, // thêm dòng này ở đầu
+    req: Request,
     accessToken: string,
     refreshToken: string,
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    const { name, emails, photos } = profile;
+    const { name, emails } = profile;
     const user = {
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,
-      //   picture: photos[0].value,
-      //   accessToken,
     };
     done(null, user);
   }

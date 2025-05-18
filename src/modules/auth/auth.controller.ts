@@ -316,16 +316,10 @@ export class AuthController {
   async googleAuthRedirect(@Req() req, @Res() res: Response) {
     // Return user information
     try {
-      const result = await this.authService.loginWithGoogle(req.user);
-      res
-        .status(200)
-        .json(
-          new ResponseData<object>(
-            result,
-            StatusCodeHTTP.SUCCESS,
-            MessageHTTP.SUCCESS,
-          ),
-        );
+      const token = await this.authService.loginWithGoogle(req.user);
+      res.redirect(
+        `http://localhost:3000/oauth-success?accessToken=${token.accessToken}&refreshToken=${token.refreshToken}`,
+      );
     } catch (error) {
       res
         .status(400)

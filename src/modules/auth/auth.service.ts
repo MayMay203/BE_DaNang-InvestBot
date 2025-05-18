@@ -224,28 +224,56 @@ export class AuthService {
     };
   }
 
+  private async generateTokens(user: any) {
+    const payload = {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      roleId: user.role.id,
+      isActive: user.isActive,
+    };
+
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: '1h',
+    });
+
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: '1d',
+    });
+
+    return { accessToken, refreshToken };
+  }
+
   async loginWithGoogle(user: UserGoogleDTO) {
-    const userInfo = await this.accountRepository.findOne({
+    const existingUser = await this.accountRepository.findOne({
       where: { email: user.email },
       relations: ['role'],
     });
-    if (!userInfo) {
-      const expiredAt = new Date();
-      expiredAt.setMinutes(expiredAt.getMinutes() + 2);
 
-      const newUser = this.accountRepository.create({
-        email: user.email,
-        fullName: `${user.lastName} ${user.firstName}`,
-        password: '',
-        OTP: '',
-        expiredAt,
-        verified: true,
-        role: { id: 2 },
-      });
+    if (existingUser) {
+      if (existingUser.role?.id === 1) {
+        throw new Error('Admin is not allowed to login with Google');
+      }
 
-      const savedUser = await this.accountRepository.save(newUser);
-      return savedUser;
+      return this.generateTokens(existingUser);
     }
-    return userInfo;
+
+    const expiredAt = new Date(Date.now() + 2 * 60 * 1000); // 2 phút
+
+    const newUser = this.accountRepository.create({
+      email: user.email,
+      fullName: `${user.lastName} ${user.firstName}`,
+      password: '',
+      OTP: '',
+      expiredAt,
+      verified: true,
+      role: { id: 2 },
+    });
+
+    const savedUser = await this.accountRepository.save(newUser);
+
+    return this.generateTokens(savedUser);
   }
 }
