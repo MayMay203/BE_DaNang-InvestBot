@@ -1,11 +1,12 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from 'src/entities/account.entity';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { I18nContext } from 'nestjs-i18n';
+import { UserGoogleDTO } from 'src/DTO/auth/userGoogle.dto';
 
 @Injectable()
 export class AuthService {
@@ -100,7 +101,7 @@ export class AuthService {
         fullName: user.fullName,
         email,
         roleId: user.role.id,
-        isActive: user.isActive
+        isActive: user.isActive,
       };
       const accessToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_ACCESS_SECRET,
@@ -160,7 +161,7 @@ export class AuthService {
         fullName: user.fullName,
         email,
         roleId: user.role.id,
-        isActive: user.isActive
+        isActive: user.isActive,
       };
       const accessToken = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_ACCESS_SECRET,
@@ -211,7 +212,7 @@ export class AuthService {
       fullName: user.fullName,
       email: user.email,
       roleId: user.roleId,
-      isActive: user.isActive
+      isActive: user.isActive,
     };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
@@ -221,5 +222,30 @@ export class AuthService {
       ...payload,
       accessToken,
     };
+  }
+
+  async loginWithGoogle(user: UserGoogleDTO) {
+    const userInfo = await this.accountRepository.findOne({
+      where: { email: user.email },
+      relations: ['role'],
+    });
+    if (!userInfo) {
+      const expiredAt = new Date();
+      expiredAt.setMinutes(expiredAt.getMinutes() + 2);
+
+      const newUser = this.accountRepository.create({
+        email: user.email,
+        fullName: `${user.lastName} ${user.firstName}`,
+        password: '',
+        OTP: '',
+        expiredAt,
+        verified: true,
+        role: { id: 2 },
+      });
+
+      const savedUser = await this.accountRepository.save(newUser);
+      return savedUser;
+    }
+    return userInfo;
   }
 }

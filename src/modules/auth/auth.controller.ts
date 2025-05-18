@@ -1,12 +1,14 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
   Query,
   Req,
   Res,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -20,6 +22,7 @@ import { EmailDTO } from 'src/DTO/auth/email.dto';
 import { ResetPasswordDTO } from 'src/DTO/auth/resetPassword.dto';
 import { ChangePasswordDTO } from 'src/DTO/auth/changePassword.dto';
 import { I18n, I18nContext } from 'nestjs-i18n';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -299,5 +302,40 @@ export class AuthController {
           'Refresh token successfully',
         ),
       );
+  }
+
+  // Login with google
+  @Get('login-with-google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {
+    // Switch to google to login
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req, @Res() res: Response) {
+    // Return user information
+    try {
+      const result = await this.authService.loginWithGoogle(req.user);
+      res
+        .status(200)
+        .json(
+          new ResponseData<object>(
+            result,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    } catch (error) {
+      res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message,
+          ),
+        );
+    }
   }
 }
