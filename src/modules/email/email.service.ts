@@ -50,4 +50,37 @@ export class EmailService {
       throw new Error(i18n.t('common.not_forget_password'));
     }
   }
+
+  // Gửi email để thông báo khoá tài khoản
+  async lockAccount(email: string, reason: string, i18n: I18nContext) {
+    const text = `${i18n.t('common.account_locked_notice')}\n\n${i18n.t('common.lock_reason')}: ${reason}`;
+    const mailOptions = {
+      from: 'hongnhung16052003@gmail.com',
+      to: email,
+      subject: i18n.t('common.account_locked_subject'),
+      text,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new Error(i18n.t('common.email_send_fail'));
+    }
+  }
+
+  async unlockAccount(email: string, i18n: I18nContext) {
+    const text = i18n.t('common.account_unlocked_notice');
+    const mailOptions = {
+      from: 'hongnhung16052003@gmail.com',
+      to: email,
+      subject: i18n.t('common.account_unlocked_subject'),
+      text,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new Error(i18n.t('common.email_send_fail'));
+    }
+  }
 }

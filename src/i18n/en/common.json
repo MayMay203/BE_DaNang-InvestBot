@@ -28,5 +28,11 @@
   "reset_password_expiry_notice": "Note: this link will expire in 5 minutes.",
   "access_token_missing": "Access token is missing",
   "account_blocked": "Your account has been blocked",
-  "admin_required": "Administrator privileges required"
+  "admin_required": "Administrator privileges required",
+  "account_locked_notice": "Your account has been locked.",
+  "lock_reason": "Reason",
+  "account_locked_subject": "Account Locked Notification",
+  "email_send_fail": "Failed to send notification email.",
+  "account_unlocked_notice": "Your account has been approved for reactivation.",
+  "account_unlocked_subject": "Account Reactivation Notification"
 }

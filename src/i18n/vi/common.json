@@ -28,5 +28,11 @@
   "reset_password_expiry_notice": "Lưu ý: liên kết này sẽ hết hạn sau 5 phút.",
   "access_token_missing": "Thiếu access token",
   "account_blocked": "Tài khoản của bạn đã bị khóa",
-  "admin_required": "Yêu cầu quyền quản trị viên"
+  "admin_required": "Yêu cầu quyền quản trị viên",
+  "account_locked_notice": "Tài khoản của bạn đã bị khóa.",
+  "lock_reason": "Lý do",
+  "account_locked_subject": "Thông báo tài khoản bị khóa",
+  "email_send_fail": "Gửi email thông báo thất bại.",
+  "account_unlocked_notice": "Tài khoản của bạn đã được phê duyệt mở lại.",
+  "account_unlocked_subject": "Thông báo mở khóa tài khoản"
 }

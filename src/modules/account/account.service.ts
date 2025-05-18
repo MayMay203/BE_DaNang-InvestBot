@@ -3,25 +3,45 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from 'src/entities/account.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import { EmailService } from '../email/email.service';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectRepository(Account) private accountRepository: Repository<Account>,
+    private readonly emailService: EmailService,
   ) {}
 
   async getAllAccount() {
-    return (await this.accountRepository.find({ relations: ['role'] })).reverse();
+    return (
+      await this.accountRepository.find({ relations: ['role'] })
+    ).reverse();
   }
 
-  async changeStatusAccount(id: number, status: boolean, reason:string|undefined) {
-    try {
-      // handle send email to inform
-      if (status === true) reason = '';
-      await this.accountRepository.update({ id }, { isActive: status, reason });
-      return 'Update account successfully!';
-    } catch (error) {
-      throw new Error('Update account unsuccessfully');
+  async changeStatusAccount(
+    id: number,
+    status: boolean,
+    reason: string | undefined,
+    i18n: I18nContext,
+  ) {
+    const user = await this.accountRepository.findOne({ where: { id } });
+    if (user) {
+      try {
+        if (status === true) {
+          reason = '';
+          await this.emailService.unlockAccount(user.email, i18n);
+        } else {
+          await this.emailService.lockAccount(user.email, reason || '', i18n);
+        }
+        await this.accountRepository.update(
+          { id },
+          { isActive: status, reason },
+        );
+        return 'Update account successfully!';
+      } catch (error) {
+        throw new Error('Update account unsuccessfully');
+      }
     }
   }
 

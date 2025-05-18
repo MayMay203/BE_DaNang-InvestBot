@@ -14,6 +14,7 @@ import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
 import { Response } from 'express';
 import { ChangeStatusDTO } from 'src/DTO/account/changeStatus.dto';
 import { RegisterDTO } from 'src/DTO/auth/register.dto';
+import { I18n, I18nContext } from 'nestjs-i18n';
 
 @Controller('manage-account')
 export class AccountController {
@@ -37,6 +38,7 @@ export class AccountController {
   async changeStatusAccount(
     @Body() body: ChangeStatusDTO,
     @Res() res: Response,
+    @I18n() i18n: I18nContext,
   ) {
     try {
       const { id, status, reason } = body;
@@ -44,10 +46,13 @@ export class AccountController {
         id,
         status,
         reason,
+        i18n,
       );
       return res
         .status(200)
-        .json(new ResponseData<null>(null, StatusCodeHTTP.SUCCESS, message));
+        .json(
+          new ResponseData<null>(null, StatusCodeHTTP.SUCCESS, message || ''),
+        );
     } catch (error) {
       return res
         .status(400)
