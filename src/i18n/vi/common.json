@@ -24,5 +24,9 @@
   "not_assigned_material": "Tài liệu chưa được gán cho kho kiến thức này",
   "at_least_one_file": "Cần ít nhất một tệp",
   "success_update": "Cập nhật trạng thái thành công",
-  "locked_account": "Tài khoản đã bị khoá"
+  "locked_account": "Tài khoản đã bị khoá",
+  "reset_password_expiry_notice": "Lưu ý: liên kết này sẽ hết hạn sau 5 phút.",
+  "access_token_missing": "Thiếu access token",
+  "account_blocked": "Tài khoản của bạn đã bị khóa",
+  "admin_required": "Yêu cầu quyền quản trị viên"
 }

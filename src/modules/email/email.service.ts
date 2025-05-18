@@ -36,7 +36,7 @@ export class EmailService {
 
   // Gửi email để resetpassword
   async forgetPassword(email: string, url: string, i18n: I18nContext) {
-    const text = i18n.t('common.click_link_to_reset') + url;
+    const text = `${i18n.t('common.click_link_to_reset')}${url}\n\n${i18n.t('common.reset_password_expiry_notice')}`;
     const mailOptions = {
       from: 'hongnhung16052003@gmail.com',
       to: email,
