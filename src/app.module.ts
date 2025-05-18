@@ -27,12 +27,7 @@ import { SeederModule } from './modules/seeder/seeder.module';
 import { MaterialModule } from './modules/material/material.module';
 import { KnowledgeStoreModule } from './modules/knowledgeStore/knowledgeStore.module';
 import { ConversationModule } from './modules/conversation/conversation.module';
-import {
-  I18nModule,
-  AcceptLanguageResolver,
-  QueryResolver,
-  HeaderResolver,
-} from 'nestjs-i18n';
+import { I18nModule, HeaderResolver } from 'nestjs-i18n';
 import * as path from 'path';
 
 @Module({
@@ -93,6 +88,8 @@ export class AppModule implements NestModule {
         { path: 'auth/resend-otp', method: RequestMethod.POST },
         { path: 'auth/verify-otp', method: RequestMethod.POST },
         { path: 'auth/forget-password', method: RequestMethod.POST },
+        { path: 'auth/login-with-google', method: RequestMethod.GET },
+        { path: '/auth/google/callback', method: RequestMethod.GET },
       )
       .forRoutes('*');
   }
