@@ -20,6 +20,43 @@ export class MaterialService {
     private readonly googleDriveService: GoogleDriveService,
   ) {}
 
+  async uploadFilesToDriveOnly(
+    files: Express.Multer.File[],
+  ): Promise<string[]> {
+    const driveLinks: string[] = [];
+
+    // Create folder and share
+    const folderId =
+      await this.googleDriveService.createAndShareFolder('MyUploads');
+
+    for (const file of files) {
+      const urlFile = await this.googleDriveService.uploadToDrive(
+        file,
+        folderId,
+      );
+      driveLinks.push(urlFile);
+    }
+
+    return driveLinks;
+  }
+
+  private extractFileIdFromDriveLink(link: string): string | null {
+    const match = link.match(/\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)/);
+    if (match) {
+      return match[1] || match[2];
+    }
+    return null;
+  }
+
+  async deleteFilesFromDrive(driveLinks: string[]): Promise<void> {
+    for (const link of driveLinks) {
+      const fileId = this.extractFileIdFromDriveLink(link);
+      if (fileId) {
+        await this.googleDriveService.deleteFile(fileId);
+      }
+    }
+  }
+
   async addMaterial(data: MaterialDTO, files: Express.Multer.File[]) {
     const results: any[] = [];
 
