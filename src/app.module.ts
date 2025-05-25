@@ -27,6 +27,8 @@ import { SeederModule } from './modules/seeder/seeder.module';
 import { MaterialModule } from './modules/material/material.module';
 import { KnowledgeStoreModule } from './modules/knowledgeStore/knowledgeStore.module';
 import { ConversationModule } from './modules/conversation/conversation.module';
+import { I18nModule, HeaderResolver } from 'nestjs-i18n';
+import * as path from 'path';
 
 @Module({
   imports: [
@@ -63,6 +65,14 @@ import { ConversationModule } from './modules/conversation/conversation.module';
       }),
       inject: [ConfigService],
     }),
+    I18nModule.forRoot({
+      fallbackLanguage: 'vi',
+      loaderOptions: {
+        path: path.join(__dirname, '../src/i18n'),
+        watch: true,
+      },
+      resolvers: [{ use: HeaderResolver, options: ['accept-language'] }],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, JwtService],
@@ -78,6 +88,8 @@ export class AppModule implements NestModule {
         { path: 'auth/resend-otp', method: RequestMethod.POST },
         { path: 'auth/verify-otp', method: RequestMethod.POST },
         { path: 'auth/forget-password', method: RequestMethod.POST },
+        { path: 'auth/login-with-google', method: RequestMethod.GET },
+        { path: '/auth/google/callback', method: RequestMethod.GET },
       )
       .forRoutes('*');
   }

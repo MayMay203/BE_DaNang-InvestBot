@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { I18nContext } from 'nestjs-i18n';
 import { Account } from 'src/entities/account.entity';
 import { Conversation } from 'src/entities/conversation.entity';
 import { Material } from 'src/entities/material.entity';
@@ -16,12 +17,12 @@ export class ConversationService {
     private questionAnswerRepository: Repository<QuestionAnswer>,
   ) {}
 
-  async createConversation(accountId: number) {
+  async createConversation(accountId: number, i18n:I18nContext) {
     const account = await this.accountRepository.findOne({
       where: { id: accountId },
     });
     if (!account) {
-      throw new Error('Account not found');
+      throw new Error(i18n.t('common.account_not_found'));
     }
     return await this.conversationRepository.save({
       account,
@@ -40,11 +41,12 @@ export class ConversationService {
     conversationId: number,
     questionContent: string,
     answerContent: string,
+    i18n: I18nContext
   ) {
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId },
     });
-    if (!conversation) throw new Error('Conversation not found!');
+    if (!conversation) throw new Error(i18n.t('common.conversation_not_found'));
     return await this.questionAnswerRepository.save({
       questionContent,
       answerContent,
