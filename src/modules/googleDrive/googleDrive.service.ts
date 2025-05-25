@@ -37,6 +37,7 @@ export class GoogleDriveService {
 
     if (listRes.data.files && listRes.data.files.length > 0) {
       // Đã tồn tại → dùng lại folderId
+      console.log(listRes.data.files[0].id!);
       return listRes.data.files[0].id!;
     }
 

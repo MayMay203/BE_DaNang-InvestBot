@@ -93,19 +93,46 @@ export class MaterialService {
       return results;
     }
 
-    // Nếu là loại không yêu cầu file, chỉ tạo 1 bản ghi
-    const materialData = {
+    const urls =
+      typeof data.url === 'string'
+        ? data.url
+            .split(/[\n,]+/)
+            .map((url) => url.trim())
+            .filter(Boolean)
+        : [];
+
+    const commonData = {
       name: data.name,
       description: data.description,
       text: data.text,
-      url: data.url,
       createdAt: new Date(),
       updatedAt: new Date(),
       materialType: { id: Number(data.materialTypeId) },
       accessLevel: { id: Number(data.accessLevelId) },
     };
 
-    return await this.materialRepository.save(materialData);
+    if (urls.length > 1) {
+      const results: any[] = [];
+
+      for (const url of urls) {
+        const materialData = {
+          ...commonData,
+          url,
+        };
+        const saved = await this.materialRepository.save(materialData);
+        results.push(saved);
+      }
+
+      return results;
+    }
+
+    // Trường hợp chỉ có 1 URL
+    const materialData = {
+      ...commonData,
+      url: data.url,
+    };
+
+    return await this.materialRepository.save([materialData]); 
   }
 
   async getAllMaterials(store?: string) {
