@@ -26,7 +26,6 @@ export class GoogleDriveService {
     return stream;
   }
 
-  // Tạo folder nếu chưa có
   async createAndShareFolder(folderName: string): Promise<string> {
     const drive = await this.getDriveClient();
 
@@ -41,7 +40,7 @@ export class GoogleDriveService {
       return listRes.data.files[0].id!;
     }
 
-    // 2. Tạo mới folder nếu chưa có
+    // 2. Create new folder if not existed
     const folder = await drive.files.create({
       requestBody: {
         name: folderName,
@@ -84,5 +83,10 @@ export class GoogleDriveService {
     });
 
     return res.data.webViewLink || '';
+  }
+
+  async deleteFile(fileId: string): Promise<void> {
+    const drive = await this.getDriveClient(); // Get Google Drive client
+    await drive.files.delete({ fileId });
   }
 }
