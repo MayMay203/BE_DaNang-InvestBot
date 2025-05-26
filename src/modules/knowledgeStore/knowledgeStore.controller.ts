@@ -8,11 +8,14 @@ import { ChangeStatusDTO } from 'src/DTO/account/changeStatus.dto';
 import { AssignMaterialsToStoreDto } from 'src/DTO/knowledgeStore/assignMaterialsToKnowledgeStore.dto';
 import { RemoveMaterialDTO } from 'src/DTO/knowledgeStore/removeMaterial.dto';
 import { I18n, I18nContext } from 'nestjs-i18n';
+import axios from 'axios';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('knowledge-store')
 export class KnowledgeStoreController {
   constructor(
     private readonly knowledgeStoreService: KnowledgeStoreService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Get('/get-all')
@@ -119,7 +122,21 @@ export class KnowledgeStoreController {
   ) {
     try {
       const { id, status } = body;
-      await this.knowledgeStoreService.changeStatusKnowledgeStore(id, status);
+      const materialList =
+        await this.knowledgeStoreService.changeStatusKnowledgeStore(id, status);
+
+      // update active in vectordb
+      const materials = materialList.map((material) => ({
+        material_id: material.id,
+        material_name: material.name,
+        new_status: status,
+      }));
+      console.log(materials);
+      const url = this.configService.get<string>('RAG_URL') ?? '';
+      await axios.post(`${url}/documnents/toggle-active`, {
+        materials,
+      });
+
       return res
         .status(200)
         .json(

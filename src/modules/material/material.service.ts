@@ -132,7 +132,7 @@ export class MaterialService {
       url: data.url,
     };
 
-    return await this.materialRepository.save([materialData]); 
+    return await this.materialRepository.save([materialData]);
   }
 
   async getAllMaterials(store?: string) {
@@ -189,6 +189,7 @@ export class MaterialService {
 
   async changeStatus(id: number, status: boolean) {
     await this.materialRepository.update(id, { isActive: status });
+    return await this.materialRepository.findOne({where: {id}});
   }
 
   async getAllMaterialsByStore() {

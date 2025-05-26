@@ -201,7 +201,24 @@ export class MaterialController {
   ) {
     try {
       const { id, status } = body;
-      await this.materialService.changeStatus(id, status);
+      const updatedMaterial = await this.materialService.changeStatus(
+        id,
+        status,
+      );
+
+      // update in vectordb
+      const materials = [
+        {
+          material_id: id,
+          material_name: updatedMaterial?.name,
+          new_status: status,
+        },
+      ];
+      const url = this.configService.get<string>('RAG_URL') ?? '';
+      await axios.post(`${url}/documnents/toggle-active`, {
+        materials,
+      });
+
       return res
         .status(200)
         .json(
