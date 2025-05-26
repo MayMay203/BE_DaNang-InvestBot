@@ -19,18 +19,22 @@ import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ChangeStatusDTO } from 'src/DTO/account/changeStatus.dto';
 import { I18n, I18nContext } from 'nestjs-i18n';
-
+import axios from 'axios';
+import { ConfigService } from '@nestjs/config';
 @Controller('material')
 export class MaterialController {
-  constructor(private readonly materialService: MaterialService) {}
+  constructor(
+    private readonly materialService: MaterialService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('/upload-material')
-  @UseInterceptors(FilesInterceptor('files')) // 'files' là tên field trong form-data
+  @UseInterceptors(FilesInterceptor('files'))
   async addMaterial(
     @Body(new ValidationPipe()) body: MaterialDTO,
     @UploadedFiles() files: Express.Multer.File[],
     @Res() res: Response,
-    @I18n() i18n: I18nContext
+    @I18n() i18n: I18nContext,
   ) {
     try {
       if (Number(body.materialTypeId) === 1 && (!files || files.length === 0)) {
@@ -45,12 +49,16 @@ export class MaterialController {
           );
       }
 
-      const data = await this.materialService.addMaterial(body, files);
+      const materials = await this.materialService.addMaterial(body, files);
+      const url = this.configService.get<string>('RAG_URL') ?? '';
+      await axios.post(`${url}/documnents/process`, {
+        materials,
+      });
       return res
         .status(201)
         .json(
-          new ResponseData<object>(
-            data,
+          new ResponseData<object | object[]>(
+            materials,
             StatusCodeHTTP.CREATED,
             MessageHTTP.CREATED,
           ),
@@ -62,7 +70,9 @@ export class MaterialController {
           new ResponseData<null>(
             null,
             StatusCodeHTTP.BAD_REQUEST,
-            error.message || 'An error occurred',
+            error?.response?.data?.detail ||
+              error.message ||
+              'An error occurred',
           ),
         );
     }
@@ -187,11 +197,28 @@ export class MaterialController {
   async changeStatusMaterial(
     @Body() body: ChangeStatusDTO,
     @Res() res: Response,
-    @I18n() i18n: I18nContext
+    @I18n() i18n: I18nContext,
   ) {
     try {
       const { id, status } = body;
-      await this.materialService.changeStatus(id, status);
+      const updatedMaterial = await this.materialService.changeStatus(
+        id,
+        status,
+      );
+
+      // update in vectordb
+      const materials = [
+        {
+          material_id: id,
+          material_name: updatedMaterial?.name,
+          new_status: status,
+        },
+      ];
+      const url = this.configService.get<string>('RAG_URL') ?? '';
+      await axios.post(`${url}/documnents/toggle-active`, {
+        materials,
+      });
+
       return res
         .status(200)
         .json(

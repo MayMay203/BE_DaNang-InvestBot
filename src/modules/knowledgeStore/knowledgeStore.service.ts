@@ -42,7 +42,14 @@ export class KnowledgeStoreService {
   }
   async changeStatusKnowledgeStore(id: number, status: boolean) {
     await this.knowledgeStoreRepository.update(id, { isActive: status });
-    return await this.knowledgeStoreRepository.findOne({ where: { id } });
+    const materials = await this.materialRepository.find({
+      where: { knowledgeStore: { id } },
+      relations: ['knowledgeStore'],
+    });
+    for (const material of materials) {
+      await this.materialRepository.update(material.id, { isActive: status });
+    }
+    return materials;
   }
 
   async addMaterials(knowledgeStoreId: number, materialIds: number[], i18n:I18nContext) {

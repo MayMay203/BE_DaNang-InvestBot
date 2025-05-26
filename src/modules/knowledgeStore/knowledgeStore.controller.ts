@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { ResponseData } from 'src/global/globalClass';
 import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
@@ -16,9 +7,9 @@ import { KnowledgeStoreDTO } from 'src/DTO/knowledgeStore/knowledgeStore.dto';
 import { ChangeStatusDTO } from 'src/DTO/account/changeStatus.dto';
 import { AssignMaterialsToStoreDto } from 'src/DTO/knowledgeStore/assignMaterialsToKnowledgeStore.dto';
 import { RemoveMaterialDTO } from 'src/DTO/knowledgeStore/removeMaterial.dto';
-import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
 import { I18n, I18nContext } from 'nestjs-i18n';
+import axios from 'axios';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('knowledge-store')
 export class KnowledgeStoreController {
@@ -57,7 +48,7 @@ export class KnowledgeStoreController {
   async createNewKnowledgeStore(
     @Body() body: KnowledgeStoreDTO,
     @Res() res: Response,
-    @I18n() i18n: I18nContext
+    @I18n() i18n: I18nContext,
   ) {
     try {
       const { name, description } = body;
@@ -65,7 +56,7 @@ export class KnowledgeStoreController {
         await this.knowledgeStoreService.createKnowledgeStore(
           name,
           description,
-          i18n
+          i18n,
         );
       return res
         .status(201)
@@ -131,7 +122,21 @@ export class KnowledgeStoreController {
   ) {
     try {
       const { id, status } = body;
-      await this.knowledgeStoreService.changeStatusKnowledgeStore(id, status);
+      const materialList =
+        await this.knowledgeStoreService.changeStatusKnowledgeStore(id, status);
+
+      // update active in vectordb
+      const materials = materialList.map((material) => ({
+        material_id: material.id,
+        material_name: material.name,
+        new_status: status,
+      }));
+      console.log(materials);
+      const url = this.configService.get<string>('RAG_URL') ?? '';
+      await axios.post(`${url}/documnents/toggle-active`, {
+        materials,
+      });
+
       return res
         .status(200)
         .json(
@@ -158,14 +163,14 @@ export class KnowledgeStoreController {
   async addMaterials(
     @Body() body: AssignMaterialsToStoreDto,
     @Res() res: Response,
-    @I18n() i18n: I18nContext
+    @I18n() i18n: I18nContext,
   ) {
     try {
       const { knowledgeStoreId, materialIds } = body;
       await this.knowledgeStoreService.addMaterials(
         knowledgeStoreId,
         materialIds,
-        i18n
+        i18n,
       );
       return res
         .status(200)
@@ -190,13 +195,17 @@ export class KnowledgeStoreController {
   }
 
   @Post('/remove-material')
-  async removeMaterial(@Body() body: RemoveMaterialDTO, @Res() res: Response, @I18n() i18n: I18nContext) {
+  async removeMaterial(
+    @Body() body: RemoveMaterialDTO,
+    @Res() res: Response,
+    @I18n() i18n: I18nContext,
+  ) {
     try {
       const { knowledgeStoreId, materialId } = body;
       await this.knowledgeStoreService.removeMaterial(
         knowledgeStoreId,
         materialId,
-        i18n
+        i18n,
       );
       return res
         .status(200)
@@ -220,41 +229,41 @@ export class KnowledgeStoreController {
     }
   }
 
-  @Post('/async')
-  async asyncKnowledgeStore(@Query('id') id: number, @Res() res: Response) {
-    try {
-      const materials =
-        await this.knowledgeStoreService.asyncKnowledgeStore(id);
+  // @Post('/async')
+  // async asyncKnowledgeStore(@Query('id') id: number, @Res() res: Response) {
+  //   try {
+  //     const materials =
+  //       await this.knowledgeStoreService.asyncKnowledgeStore(id);
 
-      // handle proccess ducument from RAG server
-      const url = this.configService.get<string>('RAG_URL') ?? '';
-      const response = await axios.post(`${url}/documnents/process`, {
-        materials,
-      });
+  //     // handle proccess ducument from RAG server
+  //     const url = this.configService.get<string>('RAG_URL') ?? '';
+  //     const response = await axios.post(`${url}/documnents/process`, {
+  //       materials,
+  //     });
 
-      if (response.status === 200 && response.data.message) {
-        return res
-          .status(200)
-          .json(
-            new ResponseData<null>(
-              null,
-              StatusCodeHTTP.SUCCESS,
-              response.data.message,
-            ),
-          );
-      } else {
-        throw new Error('Failed to process documents');
-      }
-    } catch (error) {
-      return res
-        .status(400)
-        .json(
-          new ResponseData<null>(
-            null,
-            StatusCodeHTTP.BAD_REQUEST,
-            error.message || 'An error occurred',
-          ),
-        );
-    }
-  }
+  //     if (response.status === 200 && response.data.message) {
+  //       return res
+  //         .status(200)
+  //         .json(
+  //           new ResponseData<null>(
+  //             null,
+  //             StatusCodeHTTP.SUCCESS,
+  //             response.data.message,
+  //           ),
+  //         );
+  //     } else {
+  //       throw new Error('Failed to process documents');
+  //     }
+  //   } catch (error) {
+  //     return res
+  //       .status(400)
+  //       .json(
+  //         new ResponseData<null>(
+  //           null,
+  //           StatusCodeHTTP.BAD_REQUEST,
+  //           error.message || 'An error occurred',
+  //         ),
+  //       );
+  //   }
+  // }
 }
