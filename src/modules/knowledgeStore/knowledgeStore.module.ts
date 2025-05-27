@@ -10,5 +10,6 @@ import { ConfigService } from '@nestjs/config';
   imports: [TypeOrmModule.forFeature([KnowledgeStore, Material])],
   providers: [KnowledgeStoreService, ConfigService],
   controllers: [KnowledgeStoreController],
+  exports: [KnowledgeStoreService],
 })
 export class KnowledgeStoreModule {}

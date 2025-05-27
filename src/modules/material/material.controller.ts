@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -107,11 +108,11 @@ export class MaterialController {
   @Get('/:id')
   async getDetailMaterial(@Res() res: Response, @Param('id') id: number) {
     try {
-      const material = await this.materialService.getDetailMeterial(id);
+      const material = await this.materialService.getDetailMaterial(id);
       return res
         .status(200)
         .json(
-          new ResponseData<Array<Object>>(
+          new ResponseData<Object | null>(
             material,
             StatusCodeHTTP.SUCCESS,
             MessageHTTP.SUCCESS,
@@ -236,6 +237,48 @@ export class MaterialController {
             null,
             StatusCodeHTTP.BAD_REQUEST,
             error.message || 'An error occurred',
+          ),
+        );
+    }
+  }
+
+  @Delete('delete/:id')
+  async deleteMaterial(
+    @Param('id') id: number,
+    @Res() res: Response,
+    @I18n() i18n: I18nContext,
+  ) {
+    try {
+      // Delete in vectordb
+      const material = await this.materialService.getDetailMaterial(id);
+      const collection_name = `${material?.name}_${material?.id}`;
+      const url = this.configService.get<string>('RAG_URL') ?? '';
+      await axios.delete(`${url}/documents/delete-material`, {
+        data: { collection_name },
+      });
+      // Delete in mysql
+      await this.materialService.deleteMaterial(id);
+
+      return res
+        .status(200)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.SUCCESS,
+            i18n.t('common.success_update'),
+          ),
+        );
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error?.response?.data?.detail ||
+              error.message ||
+              'An error occurred',
           ),
         );
     }

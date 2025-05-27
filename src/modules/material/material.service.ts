@@ -4,6 +4,8 @@ import { MaterialDTO } from 'src/DTO/material/material.dto';
 import { Material } from 'src/entities/material.entity';
 import { Repository } from 'typeorm';
 import { GoogleDriveService } from '../googleDrive/googleDrive.service';
+import { KnowledgeStoreService } from '../knowledgeStore/knowledgeStore.service';
+import { I18nContext } from 'nestjs-i18n';
 
 type StoreGroup = {
   materials: string[];
@@ -18,6 +20,7 @@ export class MaterialService {
     @InjectRepository(Material)
     private materialRepository: Repository<Material>,
     private readonly googleDriveService: GoogleDriveService,
+    private readonly knowlegdeStoreService: KnowledgeStoreService,
   ) {}
 
   async uploadFilesToDriveOnly(
@@ -156,8 +159,8 @@ export class MaterialService {
     return materials;
   }
 
-  async getDetailMeterial(id: number) {
-    return await this.materialRepository.find({
+  async getDetailMaterial(id: number) {
+    return await this.materialRepository.findOne({
       where: { id },
       relations: ['knowledgeStore', 'materialType', 'accessLevel'],
     });
@@ -189,7 +192,7 @@ export class MaterialService {
 
   async changeStatus(id: number, status: boolean) {
     await this.materialRepository.update(id, { isActive: status });
-    return await this.materialRepository.findOne({where: {id}});
+    return await this.materialRepository.findOne({ where: { id } });
   }
 
   async getAllMaterialsByStore() {
@@ -227,5 +230,17 @@ export class MaterialService {
       [],
     );
     return groupedMaterials;
+  }
+
+  async deleteMaterial(id: number) {
+    const material = await this.materialRepository.findOne({
+      where: { id },
+      relations: ['materialType', 'knowledgeStore'],
+    });
+
+    if (material?.materialType.id === 1) {
+      await this.deleteFilesFromDrive([material.url]);
+    }
+    await this.materialRepository.delete(id);
   }
 }
