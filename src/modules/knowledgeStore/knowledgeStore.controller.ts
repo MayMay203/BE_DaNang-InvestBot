@@ -18,6 +18,33 @@ export class KnowledgeStoreController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Get('/:id')
+  async getDetailKnowledgeStore(@Res() res: Response, @Param('id') id: number) {
+    try {
+      const knowledgeStore =
+        await this.knowledgeStoreService.getDetailKnowledgeStore(id);
+      return res
+        .status(200)
+        .json(
+          new ResponseData<Object>(
+            knowledgeStore!,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message || 'An error occurred',
+          ),
+        );
+    }
+  }
+
   @Get('/get-all')
   async getAllKnowledgeStore(@Res() res: Response) {
     try {
@@ -131,9 +158,9 @@ export class KnowledgeStoreController {
         material_name: material.name,
         new_status: status,
       }));
-      console.log(materials);
+
       const url = this.configService.get<string>('RAG_URL') ?? '';
-      await axios.post(`${url}/documnents/toggle-active`, {
+      await axios.post(`${url}/documents/toggle-active`, {
         materials,
       });
 
@@ -194,17 +221,17 @@ export class KnowledgeStoreController {
     }
   }
 
-  @Post('/remove-material')
+  @Post('/remove-materials')
   async removeMaterial(
     @Body() body: RemoveMaterialDTO,
     @Res() res: Response,
     @I18n() i18n: I18nContext,
   ) {
     try {
-      const { knowledgeStoreId, materialId } = body;
+      const { knowledgeStoreId, materialIds } = body;
       await this.knowledgeStoreService.removeMaterial(
         knowledgeStoreId,
-        materialId,
+        materialIds,
         i18n,
       );
       return res
@@ -228,42 +255,4 @@ export class KnowledgeStoreController {
         );
     }
   }
-
-  // @Post('/async')
-  // async asyncKnowledgeStore(@Query('id') id: number, @Res() res: Response) {
-  //   try {
-  //     const materials =
-  //       await this.knowledgeStoreService.asyncKnowledgeStore(id);
-
-  //     // handle proccess ducument from RAG server
-  //     const url = this.configService.get<string>('RAG_URL') ?? '';
-  //     const response = await axios.post(`${url}/documnents/process`, {
-  //       materials,
-  //     });
-
-  //     if (response.status === 200 && response.data.message) {
-  //       return res
-  //         .status(200)
-  //         .json(
-  //           new ResponseData<null>(
-  //             null,
-  //             StatusCodeHTTP.SUCCESS,
-  //             response.data.message,
-  //           ),
-  //         );
-  //     } else {
-  //       throw new Error('Failed to process documents');
-  //     }
-  //   } catch (error) {
-  //     return res
-  //       .status(400)
-  //       .json(
-  //         new ResponseData<null>(
-  //           null,
-  //           StatusCodeHTTP.BAD_REQUEST,
-  //           error.message || 'An error occurred',
-  //         ),
-  //       );
-  //   }
-  // }
 }
