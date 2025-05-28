@@ -216,7 +216,7 @@ export class MaterialController {
         },
       ];
       const url = this.configService.get<string>('RAG_URL') ?? '';
-      await axios.post(`${url}/documnents/toggle-active`, {
+      await axios.post(`${url}/documents/toggle-active`, {
         materials,
       });
 
@@ -265,7 +265,7 @@ export class MaterialController {
           new ResponseData<null>(
             null,
             StatusCodeHTTP.SUCCESS,
-            i18n.t('common.success_update'),
+            i18n.t('common.success_delete_material'),
           ),
         );
     } catch (error) {

@@ -34,5 +34,6 @@
   "account_locked_subject": "Account Locked Notification",
   "email_send_fail": "Failed to send notification email.",
   "account_unlocked_notice": "Your account has been approved for reactivation.",
-  "account_unlocked_subject": "Account Reactivation Notification"
+  "account_unlocked_subject": "Account Reactivation Notification",
+  "success_delete_material": "Delete material successfully"
 }
