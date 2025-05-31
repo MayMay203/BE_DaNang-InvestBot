@@ -144,7 +144,7 @@ export class MaterialService {
     return await this.materialRepository.save([materialData]);
   }
 
-  async getAllMaterials(store?: string) {
+  async getAllMaterials(store?: string, role?: string) {
     let whereCondition = {};
     if (store && !store.includes('empty')) {
       whereCondition = { knowledgeStore: { id: store } };
@@ -152,7 +152,13 @@ export class MaterialService {
 
     let materials = await this.materialRepository.find({
       where: whereCondition,
-      relations: ['knowledgeStore', 'materialType', 'accessLevel'],
+      relations: [
+        'knowledgeStore',
+        'materialType',
+        'accessLevel',
+        'account',
+        'account.role',
+      ],
       order: { id: 'DESC' },
     });
 
@@ -165,18 +171,48 @@ export class MaterialService {
       );
     }
 
+    if (role === 'user') {
+      materials = materials.filter(
+        (material) => material.account && material.account.role?.id !== 1,
+      );
+    } else {
+      materials = materials.filter(
+        (material) => !material.account || material.account?.role?.id === 1,
+      );
+    }
+
     return materials;
   }
 
   async getDetailMaterial(id: number) {
     return await this.materialRepository.findOne({
       where: { id },
-      relations: ['knowledgeStore', 'materialType', 'accessLevel'],
+      relations: [
+        'knowledgeStore',
+        'materialType',
+        'accessLevel',
+        'account',
+        'account.role',
+      ],
+    });
+  }
+
+  async asyncUserMaterial(id: number) {
+    await this.materialRepository.update(id, { account: null });
+    return await this.materialRepository.find({
+      where: { id },
+      relations: [
+        'knowledgeStore',
+        'materialType',
+        'accessLevel',
+        'account',
+        'account.role',
+      ],
     });
   }
 
   async saveMaterial(materialInfo: any) {
-    await this.materialRepository.save(materialInfo)
+    await this.materialRepository.save(materialInfo);
   }
 
   async updateMaterial(

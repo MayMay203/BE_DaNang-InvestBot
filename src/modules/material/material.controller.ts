@@ -62,7 +62,7 @@ export class MaterialController {
       await axios.post(`${url}/documents/process`, {
         materials,
       });
-      
+
       return res
         .status(201)
         .json(
@@ -88,9 +88,13 @@ export class MaterialController {
   }
 
   @Get('/get-all-materials')
-  async getAllMaterials(@Res() res: Response, @Query('store') store?: string) {
+  async getAllMaterials(
+    @Res() res: Response,
+    @Query() query: { store?: string; role?: string },
+  ) {
     try {
-      const materials = await this.materialService.getAllMaterials(store);
+      const { store, role } = query;
+      const materials = await this.materialService.getAllMaterials(store, role);
       return res
         .status(200)
         .json(
@@ -293,31 +297,78 @@ export class MaterialController {
   }
 
   @Post('save-url-material')
-  async saveUrlMaterial(@Body() body:MaterialDTO, @Res() res: Response) {
+  async saveUrlMaterial(@Body() body: MaterialDTO, @Res() res: Response) {
     try {
-      await this.materialService.saveMaterial(body)
+      await this.materialService.saveMaterial(body);
       return res
         .status(200)
         .json(
           new ResponseData<null>(
             null,
             StatusCodeHTTP.SUCCESS,
-            MessageHTTP.SUCCESS
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error?.response?.data?.detail ||
+              error.message ||
+              'An error occurred',
           ),
         );
     }
-    catch (error) {
+  }
+
+  @Post('async-user-material/:id')
+  async asyncUserMaterial(@Param('id') id: number, @Res() res: Response) {
+    try {
+      const material = await this.materialService.asyncUserMaterial(id);
+      const url = this.configService.get<string>('RAG_URL') ?? '';
+      await axios.post(`${url}/documents/process`, {
+        materials: material,
+      });
+
       return res
-      .status(400)
-      .json(
-        new ResponseData<null>(
-          null,
-          StatusCodeHTTP.BAD_REQUEST,
-          error?.response?.data?.detail ||
-            error.message ||
-            'An error occurred',
-        ),
-      );
+        .status(201)
+        .json(
+          new ResponseData<object>(
+            material!,
+            StatusCodeHTTP.CREATED,
+            MessageHTTP.CREATED,
+          ),
+        );
+    } catch (error) {}
+  }
+  @Delete('delete-user-material/:id')
+  async deleteUserMaterial(@Param('id') id: number, @Res() res: Response) {
+    try {
+      await this.materialService.deleteMaterial(id);
+      return res
+        .status(200)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error?.response?.data?.detail ||
+              error.message ||
+              'An error occurred',
+          ),
+        );
     }
   }
 }

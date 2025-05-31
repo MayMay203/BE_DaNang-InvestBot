@@ -44,5 +44,5 @@ export class Material {
   accessLevel: AccessLevel;
 
   @ManyToOne(() => Account, (account) => account.materials)
-  account: Account
+  account: Account | null
 }
