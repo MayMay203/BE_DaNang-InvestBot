@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Role } from './role.entity';
 import { Conversation } from './conversation.entity';
+import { Material } from './material.entity';
 
 @Entity()
 export class Account {
@@ -42,4 +43,7 @@ export class Account {
 
   @OneToMany(() => Conversation, (conversation) => conversation.account)
   conversations: Conversation[];
+
+  @OneToMany(() => Material, (material) => material.account)
+  materials: Material[]
 }

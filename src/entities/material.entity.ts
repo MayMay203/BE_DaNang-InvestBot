@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { KnowledgeStore } from './knowledgeStore.entity';
 import { MaterialType } from './materialType.entity';
 import { AccessLevel } from './accessLevel.entity';
+import { Account } from './account.entity';
 
 @Entity()
 export class Material {
@@ -41,4 +42,7 @@ export class Material {
 
   @ManyToOne(() => AccessLevel, (accessLevel) => accessLevel.materials)
   accessLevel: AccessLevel;
+
+  @ManyToOne(() => Account, (account) => account.materials)
+  account: Account
 }

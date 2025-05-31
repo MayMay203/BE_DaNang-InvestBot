@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   Res,
   UploadedFiles,
   UseInterceptors,
@@ -36,8 +37,10 @@ export class MaterialController {
     @UploadedFiles() files: Express.Multer.File[],
     @Res() res: Response,
     @I18n() i18n: I18nContext,
+    @Req() req: Request,
   ) {
     try {
+      const accountId = (req as any).user.id;
       if (Number(body.materialTypeId) === 1 && (!files || files.length === 0)) {
         return res
           .status(400)
@@ -50,11 +53,16 @@ export class MaterialController {
           );
       }
 
-      const materials = await this.materialService.addMaterial(body, files);
+      const materials = await this.materialService.addMaterial(
+        body,
+        files,
+        accountId,
+      );
       const url = this.configService.get<string>('RAG_URL') ?? '';
-      await axios.post(`${url}/documnents/process`, {
+      await axios.post(`${url}/documents/process`, {
         materials,
       });
+      
       return res
         .status(201)
         .json(
@@ -281,6 +289,35 @@ export class MaterialController {
               'An error occurred',
           ),
         );
+    }
+  }
+
+  @Post('save-url-material')
+  async saveUrlMaterial(@Body() body:MaterialDTO, @Res() res: Response) {
+    try {
+      await this.materialService.saveMaterial(body)
+      return res
+        .status(200)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS
+          ),
+        );
+    }
+    catch (error) {
+      return res
+      .status(400)
+      .json(
+        new ResponseData<null>(
+          null,
+          StatusCodeHTTP.BAD_REQUEST,
+          error?.response?.data?.detail ||
+            error.message ||
+            'An error occurred',
+        ),
+      );
     }
   }
 }

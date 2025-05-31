@@ -60,7 +60,11 @@ export class MaterialService {
     }
   }
 
-  async addMaterial(data: MaterialDTO, files: Express.Multer.File[]) {
+  async addMaterial(
+    data: MaterialDTO,
+    files: Express.Multer.File[],
+    accountId: number,
+  ) {
     const results: any[] = [];
 
     if (Number(data.materialTypeId) === 1 && files?.length) {
@@ -82,6 +86,7 @@ export class MaterialService {
           updatedAt: new Date(),
           materialType: { id: Number(data.materialTypeId) },
           accessLevel: { id: Number(data.accessLevelId) },
+          account: { id: Number(accountId) },
         };
 
         const saved = await this.materialRepository.save(materialData);
@@ -112,6 +117,7 @@ export class MaterialService {
       updatedAt: new Date(),
       materialType: { id: Number(data.materialTypeId) },
       accessLevel: { id: Number(data.accessLevelId) },
+      account: { id: Number(accountId) },
     };
 
     if (urls.length > 1) {
@@ -167,6 +173,10 @@ export class MaterialService {
       where: { id },
       relations: ['knowledgeStore', 'materialType', 'accessLevel'],
     });
+  }
+
+  async saveMaterial(materialInfo: any) {
+    await this.materialRepository.save(materialInfo)
   }
 
   async updateMaterial(

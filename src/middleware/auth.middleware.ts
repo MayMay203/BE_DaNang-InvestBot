@@ -55,6 +55,11 @@ export class AuthMiddleware implements NestMiddleware {
   }
 
   private isAdminRoute(url: string): boolean {
+    const excludedRoutes = ['/material/save-url-material'];
+    if (excludedRoutes.some((route) => url.startsWith(route))) {
+      return false;
+    }
+
     const adminRoutes = ['/manage-account', '/material', '/knowledge-store'];
     return adminRoutes.some((route) => url.startsWith(route));
   }

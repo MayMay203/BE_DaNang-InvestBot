@@ -100,13 +100,11 @@ export class ConversationController {
       if (!idList.includes(conversationId)) {
         throw new Error('Conversation is not existed!');
       }
-      const materialsByStore =
-        await this.materialService.getAllMaterialsByStore();
+      
       const url = this.configService.get<string>('RAG_URL') ?? '';
       const data = await axios.post(`${url}/conversations/send-message`, {
         conversationId,
         query,
-        materialsByStore,
         accessToken,
       });
 
@@ -147,6 +145,8 @@ export class ConversationController {
     @Req() req: Request,
   ) {
     try {
+      const accountId = (req as any).user.id;
+      const roleId = (req as any).user.roleId;
       const accessToken = req.headers['authorization']?.split(' ')[1];
       let { conversationId, query } = body;
       const idList = await this.conversationService.getAllConversationIds();
@@ -166,21 +166,35 @@ export class ConversationController {
 
       query += `\nLink được xuất sau khi tải file lên:\n${fileLinks.join('\n')}`;
 
-      const materialsByStore =
-        await this.materialService.getAllMaterialsByStore();
-
       const url = this.configService.get<string>('RAG_URL') ?? '';
-      // console.log('materialByStores', materialsByStore);
-      console.log(fileLinks);
 
       const data = await axios.post(`${url}/conversations/send-message`, {
         conversationId,
         query,
-        materialsByStore,
         accessToken,
         fileTypes,
         nameList,
       });
+
+      // handle save file into db
+      if (roleId != 1) {
+        const savePromises = fileLinks.map((link, index) => {
+          const materialData = {
+            name: nameList[index],
+            description: nameList[index],
+            text: null,
+            url: link,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            materialType: { id: 1 },
+            accessLevel: { id: 1 },
+            account: { id: Number(accountId) },
+          };
+
+          return this.materialService.saveMaterial(materialData);
+        });
+        await Promise.all(savePromises);
+      }
 
       // await this.conversationService.saveHistoryChat(
       //   conversationId,
@@ -189,7 +203,7 @@ export class ConversationController {
       // );
 
       // handle delete file by user upload to query
-      this.materialService.deleteFilesFromDrive(fileLinks);
+      // this.materialService.deleteFilesFromDrive(fileLinks);
 
       return res
         .status(200)
