@@ -14,7 +14,11 @@ export class KnowledgeStoreService {
     private materialRepository: Repository<Material>,
   ) {}
 
-  async createKnowledgeStore(name: string, description: string, i18n: I18nContext) {
+  async createKnowledgeStore(
+    name: string,
+    description: string,
+    i18n: I18nContext,
+  ) {
     const data = await this.knowledgeStoreRepository.findOne({
       where: { name },
     });
@@ -28,8 +32,30 @@ export class KnowledgeStoreService {
     return await this.knowledgeStoreRepository.save(newData);
   }
 
+  async getDetailKnowledgeStore(id) {
+    const store = await this.knowledgeStoreRepository.findOne({
+      where: { id },
+    });
+    return store;
+  }
+
   async getAllKnowledStore() {
-    return await this.knowledgeStoreRepository.find();
+    const stores = await this.knowledgeStoreRepository.find();
+
+    const result = await Promise.all(
+      stores.map(async (store) => {
+        const numberMaterials = await this.materialRepository.count({
+          where: { knowledgeStore: { id: store.id } },
+        });
+
+        return {
+          ...store,
+          numberMaterials,
+        };
+      }),
+    );
+
+    return result;
   }
 
   async updateKnowledStore(id: number, name: string, description: string) {
@@ -52,11 +78,16 @@ export class KnowledgeStoreService {
     return materials;
   }
 
-  async addMaterials(knowledgeStoreId: number, materialIds: number[], i18n:I18nContext) {
+  async addMaterials(
+    knowledgeStoreId: number,
+    materialIds: number[],
+    i18n: I18nContext,
+  ) {
     const knowledgeStore = await this.knowledgeStoreRepository.findOne({
       where: { id: knowledgeStoreId },
     });
-    if (!knowledgeStore) throw new Error(i18n.t('common.knowledge_store_not_found'));
+    if (!knowledgeStore)
+      throw new Error(i18n.t('common.knowledge_store_not_found'));
 
     for (const id of materialIds) {
       await this.materialRepository.update(id, {
@@ -65,25 +96,29 @@ export class KnowledgeStoreService {
     }
   }
 
-  async removeMaterial(knowledgeStoreId: number, materialId: number, i18n: I18nContext) {
-    const material = await this.materialRepository.findOne({
-      where: { id: materialId },
-      relations: ['knowledgeStore'],
-    });
+  async removeMaterial(
+    knowledgeStoreId: number,
+    materialIds: number[],
+    i18n: I18nContext,
+  ) {
+    for (const materialId of materialIds) {
+      const material = await this.materialRepository.findOne({
+        where: { id: materialId },
+        relations: ['knowledgeStore'],
+      });
 
-    if (!material) {
-      throw new Error(i18n.t('common.material_not_found'));
+      if (!material) {
+        throw new Error(i18n.t('common.material_not_found'));
+      }
+
+      if (material.knowledgeStore?.id !== knowledgeStoreId) {
+        throw new Error(i18n.t('common.not_assigned_material'));
+      }
+
+      await this.materialRepository.update(materialId, {
+        knowledgeStore: null as any,
+      });
     }
-
-    if (material.knowledgeStore?.id !== knowledgeStoreId) {
-      throw new Error(
-        i18n.t('common.not_assigned_material'),
-      );
-    }
-
-    await this.materialRepository.update(materialId, {
-      knowledgeStore: null as any,
-    });
   }
 
   async asyncKnowledgeStore(id: number) {
@@ -111,7 +146,7 @@ export class KnowledgeStoreService {
 
     const store = await this.knowledgeStoreRepository.findOneBy({ id });
     if (store) {
-      store.status = 'Asynced'; 
+      store.status = 'Asynced';
       await this.knowledgeStoreRepository.save(store);
     }
 

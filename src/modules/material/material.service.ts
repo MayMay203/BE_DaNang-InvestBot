@@ -140,7 +140,7 @@ export class MaterialService {
 
   async getAllMaterials(store?: string) {
     let whereCondition = {};
-    if (store && store != 'empty') {
+    if (store && !store.includes('empty')) {
       whereCondition = { knowledgeStore: { id: store } };
     }
 
@@ -150,9 +150,12 @@ export class MaterialService {
       order: { id: 'DESC' },
     });
 
-    if (store === 'empty') {
+    if (store?.includes('empty')) {
+      const storeId = Number(store.split('/')[1]);
       materials = materials.filter(
-        (material) => material.knowledgeStore === null,
+        (material) =>
+          material.knowledgeStore === null ||
+          material.knowledgeStore.id == storeId,
       );
     }
 
