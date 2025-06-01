@@ -14,6 +14,9 @@ export class Conversation {
   id: number;
 
   @Column()
+  name: String;
+
+  @Column()
   createdAt: Date;
 
   @ManyToOne(() => Account, (account) => account.conversations)

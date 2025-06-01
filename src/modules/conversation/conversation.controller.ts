@@ -1,4 +1,16 @@
-import { Body, Controller, Post, Query, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ConversationService } from './conversation.service';
 import { ResponseData } from 'src/global/globalClass';
 import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
@@ -18,6 +30,34 @@ export class ConversationController {
     private readonly configService: ConfigService,
     private readonly materialService: MaterialService,
   ) {}
+
+  @Get('/get-all-conversations')
+  async getAllConversation(@Res() res: Response, @Req() req: any) {
+    try {
+      const conversations = await this.conversationService.getAllConversations(
+        req.user.id,
+      );
+      return res
+        .status(201)
+        .json(
+          new ResponseData<Object>(
+            conversations,
+            StatusCodeHTTP.CREATED,
+            MessageHTTP.CREATED,
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message,
+          ),
+        );
+    }
+  }
   @Post('/create')
   async createConversation(
     @Res() res: Response,
@@ -63,7 +103,7 @@ export class ConversationController {
         conversationId,
         questionContent,
         answerContent,
-        i18n
+        i18n,
       );
       return res
         .status(201)
@@ -92,6 +132,7 @@ export class ConversationController {
     @Body() body: QueryDTO,
     @Res() res: Response,
     @Req() req: Request,
+    @I18n() i18n: I18nContext,
   ) {
     try {
       const accessToken = req.headers['authorization']?.split(' ')[1];
@@ -100,7 +141,7 @@ export class ConversationController {
       if (!idList.includes(conversationId)) {
         throw new Error('Conversation is not existed!');
       }
-      
+
       const url = this.configService.get<string>('RAG_URL') ?? '';
       const data = await axios.post(`${url}/conversations/send-message`, {
         conversationId,
@@ -108,11 +149,12 @@ export class ConversationController {
         accessToken,
       });
 
-      // await this.conversationService.saveHistoryChat(
-      //   conversationId,
-      //   query,
-      //   data.data,
-      // );
+      await this.conversationService.saveHistoryChat(
+        conversationId,
+        query,
+        data.data,
+        i18n,
+      );
 
       return res
         .status(200)
@@ -143,6 +185,7 @@ export class ConversationController {
     @UploadedFiles() files: Express.Multer.File[],
     @Res() res: Response,
     @Req() req: Request,
+    @I18n() i18n: I18nContext,
   ) {
     try {
       const accountId = (req as any).user.id;
@@ -196,11 +239,12 @@ export class ConversationController {
         await Promise.all(savePromises);
       }
 
-      // await this.conversationService.saveHistoryChat(
-      //   conversationId,
-      //   query,
-      //   data.data,
-      // );
+      await this.conversationService.saveHistoryChat(
+        conversationId,
+        query,
+        data.data,
+        i18n,
+      );
 
       // handle delete file by user upload to query
       // this.materialService.deleteFilesFromDrive(fileLinks);
@@ -210,6 +254,59 @@ export class ConversationController {
         .json(
           new ResponseData<string>(
             data.data,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message,
+          ),
+        );
+    }
+  }
+
+  @Delete('/delete/:id')
+  async deleteConversation(@Param('id') id: number, @Res() res: Response) {
+    try {
+      await this.conversationService.deleteConversation(id);
+      return res
+        .status(200)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message,
+          ),
+        );
+    }
+  }
+
+  @Get('/detail-conversation/:id')
+  async getDetailConversation(@Param('id') id: number, @Res() res: Response) {
+    try {
+      const questionAnswers =
+        await this.conversationService.getDetailConversation(id);
+      return res
+        .status(200)
+        .json(
+          new ResponseData<Object>(
+            questionAnswers,
             StatusCodeHTTP.SUCCESS,
             MessageHTTP.SUCCESS,
           ),
