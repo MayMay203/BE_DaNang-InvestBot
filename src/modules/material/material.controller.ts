@@ -324,14 +324,15 @@ export class MaterialController {
     }
   }
 
-  @Post('async-user-material/:id')
-  async asyncUserMaterial(@Param('id') id: number, @Res() res: Response) {
+  @Post('sync-user-material/:id')
+  async syncUserMaterial(@Param('id') id: number, @Res() res: Response) {
     try {
-      const material = await this.materialService.asyncUserMaterial(id);
+      const material = await this.materialService.getDetailMaterial(id);
       const url = this.configService.get<string>('RAG_URL') ?? '';
       await axios.post(`${url}/documents/process`, {
-        materials: material,
+        materials: [material],
       });
+      await this.materialService.syncUserMaterial(id);
 
       return res
         .status(201)
@@ -342,7 +343,19 @@ export class MaterialController {
             MessageHTTP.CREATED,
           ),
         );
-    } catch (error) {}
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error?.response?.data?.detail ||
+              error.message ||
+              'An error occurred',
+          ),
+        );
+    }
   }
   @Delete('delete-user-material/:id')
   async deleteUserMaterial(@Param('id') id: number, @Res() res: Response) {

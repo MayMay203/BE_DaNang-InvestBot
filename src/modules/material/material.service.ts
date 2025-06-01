@@ -197,18 +197,8 @@ export class MaterialService {
     });
   }
 
-  async asyncUserMaterial(id: number) {
+  async syncUserMaterial(id: number) {
     await this.materialRepository.update(id, { account: null });
-    return await this.materialRepository.find({
-      where: { id },
-      relations: [
-        'knowledgeStore',
-        'materialType',
-        'accessLevel',
-        'account',
-        'account.role',
-      ],
-    });
   }
 
   async saveMaterial(materialInfo: any) {
