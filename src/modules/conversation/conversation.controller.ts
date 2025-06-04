@@ -192,6 +192,7 @@ export class ConversationController {
       const roleId = (req as any).user.roleId;
       const accessToken = req.headers['authorization']?.split(' ')[1];
       let { conversationId, query } = body;
+      const preQuery = query;
       const idList = await this.conversationService.getAllConversationIds();
 
       if (!idList.includes(Number(conversationId))) {
@@ -199,7 +200,6 @@ export class ConversationController {
       }
 
       if (!files.length) throw new Error('At least one file is required');
-      console.log(files);
 
       // Handle query with upload file
       const nameList = Array.from(files).map((file) => file.originalname);
@@ -219,6 +219,13 @@ export class ConversationController {
         nameList,
       });
 
+      const newConver = await this.conversationService.saveHistoryChat(
+        conversationId,
+        preQuery,
+        data.data,
+        i18n,
+      );
+
       // handle save file into db
       if (roleId != 1) {
         const savePromises = fileLinks.map((link, index) => {
@@ -232,19 +239,13 @@ export class ConversationController {
             materialType: { id: 1 },
             accessLevel: { id: 1 },
             account: { id: Number(accountId) },
+            questionAnswer: { id: newConver?.id },
           };
 
           return this.materialService.saveMaterial(materialData);
         });
         await Promise.all(savePromises);
       }
-
-      await this.conversationService.saveHistoryChat(
-        conversationId,
-        query,
-        data.data,
-        i18n,
-      );
 
       // handle delete file by user upload to query
       // this.materialService.deleteFilesFromDrive(fileLinks);

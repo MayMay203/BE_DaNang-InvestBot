@@ -32,7 +32,7 @@ export class ConversationService {
     return await this.conversationRepository.save({
       account,
       createdAt: new Date(),
-      name: 'New chat'
+      name: 'New chat',
     });
   }
 
@@ -51,8 +51,21 @@ export class ConversationService {
   ) {
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId },
+      relations: ['questionAnswer'],
     });
-    if (!conversation) throw new Error(i18n.t('common.conversation_not_found'));
+
+    if (!conversation) {
+      throw new Error(i18n.t('common.conversation_not_found'));
+    }
+
+    if (
+      !conversation.questionAnswer ||
+      conversation.questionAnswer.length === 0
+    ) {
+      conversation.name = questionContent;
+      await this.conversationRepository.save(conversation);
+    }
+
     return await this.questionAnswerRepository.save({
       questionContent,
       answerContent,
@@ -68,6 +81,9 @@ export class ConversationService {
   }
 
   async getDetailConversation(id: number) {
-    return await this.questionAnswerRepository.find({where: {conversation: {id}}})
+    return await this.questionAnswerRepository.find({
+      where: { conversation: { id } },
+      relations: ['materials', 'materials.materialType'],
+    });
   }
 }
