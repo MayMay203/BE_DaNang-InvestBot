@@ -42,8 +42,8 @@ export class ConversationController {
         .json(
           new ResponseData<Object>(
             conversations,
-            StatusCodeHTTP.CREATED,
-            MessageHTTP.CREATED,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
           ),
         );
     } catch (error) {
@@ -149,12 +149,12 @@ export class ConversationController {
         accessToken,
       });
 
-      await this.conversationService.saveHistoryChat(
-        conversationId,
-        query,
-        data.data,
-        i18n,
-      );
+      // await this.conversationService.saveHistoryChat(
+      //   conversationId,
+      //   query,
+      //   data.data,
+      //   i18n,
+      // );
 
       return res
         .status(200)
@@ -219,33 +219,33 @@ export class ConversationController {
         nameList,
       });
 
-      const newConver = await this.conversationService.saveHistoryChat(
-        conversationId,
-        preQuery,
-        data.data,
-        i18n,
-      );
+      // const newConver = await this.conversationService.saveHistoryChat(
+      //   conversationId,
+      //   preQuery,
+      //   data.data,
+      //   i18n,
+      // );
 
-      // handle save file into db
-      if (roleId != 1) {
-        const savePromises = fileLinks.map((link, index) => {
-          const materialData = {
-            name: nameList[index],
-            description: nameList[index],
-            text: null,
-            url: link,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            materialType: { id: 1 },
-            accessLevel: { id: 1 },
-            account: { id: Number(accountId) },
-            questionAnswer: { id: newConver?.id },
-          };
+      // // handle save file into db
+      // if (roleId != 1) {
+      //   const savePromises = fileLinks.map((link, index) => {
+      //     const materialData = {
+      //       name: nameList[index],
+      //       description: nameList[index],
+      //       text: null,
+      //       url: link,
+      //       createdAt: new Date(),
+      //       updatedAt: new Date(),
+      //       materialType: { id: 1 },
+      //       accessLevel: { id: 1 },
+      //       account: { id: Number(accountId) },
+      //       questionAnswer: { id: newConver?.id },
+      //     };
 
-          return this.materialService.saveMaterial(materialData);
-        });
-        await Promise.all(savePromises);
-      }
+      //     return this.materialService.saveMaterial(materialData);
+      //   });
+      //   await Promise.all(savePromises);
+      // }
 
       // handle delete file by user upload to query
       // this.materialService.deleteFilesFromDrive(fileLinks);
