@@ -3,6 +3,7 @@ import { KnowledgeStore } from './knowledgeStore.entity';
 import { MaterialType } from './materialType.entity';
 import { AccessLevel } from './accessLevel.entity';
 import { Account } from './account.entity';
+import { QuestionAnswer } from './questionAnswer.entity';
 
 @Entity()
 export class Material {
@@ -44,5 +45,11 @@ export class Material {
   accessLevel: AccessLevel;
 
   @ManyToOne(() => Account, (account) => account.materials)
-  account: Account | null
+  account: Account | null;
+
+  @ManyToOne(() => QuestionAnswer, (qa) => qa.materials, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  questionAnswer: QuestionAnswer;
 }

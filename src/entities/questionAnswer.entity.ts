@@ -1,5 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Conversation } from './conversation.entity';
+import { Material } from './material.entity';
 
 @Entity()
 export class QuestionAnswer {
@@ -14,4 +21,7 @@ export class QuestionAnswer {
 
   @ManyToOne(() => Conversation, (conversation) => conversation.questionAnswer)
   conversation: Conversation;
+
+  @OneToMany(() => Material, (material) => material.questionAnswer)
+  materials: Material[];
 }

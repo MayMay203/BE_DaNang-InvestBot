@@ -23,17 +23,17 @@ export class AccessLevel {
   @OneToMany(() => Material, (material) => material.accessLevel)
   materials: Material[];
 
-  @ManyToMany(() => Role, (role) => role.accessLevels)
-  @JoinTable({
-    name: 'AccessLevel_Role',
-    joinColumn: {
-      name: 'accessLevelID',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'roleID',
-      referencedColumnName: 'id',
-    },
-  })
-  roles: Role[];
+  // @ManyToMany(() => Role, (role) => role.accessLevels)
+  // @JoinTable({
+  //   name: 'AccessLevel_Role',
+  //   joinColumn: {
+  //     name: 'accessLevelID',
+  //     referencedColumnName: 'id',
+  //   },
+  //   inverseJoinColumn: {
+  //     name: 'roleID',
+  //     referencedColumnName: 'id',
+  //   },
+  // })
+  // roles: Role[];
 }

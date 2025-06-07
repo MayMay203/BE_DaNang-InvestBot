@@ -22,6 +22,6 @@ export class Role {
   @OneToMany(() => Account, (account) => account.role)
   accounts: Account[];
 
-  @ManyToMany(() => AccessLevel, (accessLevel) => accessLevel.roles)
-  accessLevels: AccessLevel[];
+  // @ManyToMany(() => AccessLevel, (accessLevel) => accessLevel.roles)
+  // accessLevels: AccessLevel[];
 }
