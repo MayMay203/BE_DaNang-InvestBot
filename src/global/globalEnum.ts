@@ -6,6 +6,7 @@ export enum StatusCodeHTTP {
   BAD_REQUEST = 400,
   FORBIDDEN = 403,
   SERVER_ERROR = 500,
+  MANY_REQUESTS= 429,
 }
 
 export enum MessageHTTP {

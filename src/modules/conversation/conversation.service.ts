@@ -86,4 +86,11 @@ export class ConversationService {
       relations: ['materials', 'materials.materialType'],
     });
   }
+
+  async countQuestionInConversation(id: number) {
+    const count = await this.questionAnswerRepository.count({
+      where: { conversation: { id } },
+    });
+    return count;
+  }
 }
