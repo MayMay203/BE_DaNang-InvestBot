@@ -90,6 +90,7 @@ export class AppModule implements NestModule {
         { path: 'auth/forget-password', method: RequestMethod.POST },
         { path: 'auth/login-with-google', method: RequestMethod.GET },
         { path: '/auth/google/callback', method: RequestMethod.GET },
+        { path: '/material/add-basic-materials', method: RequestMethod.POST}
       )
       .forRoutes('*');
   }
