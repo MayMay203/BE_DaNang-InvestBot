@@ -35,5 +35,6 @@
   "email_send_fail": "Gửi email thông báo thất bại.",
   "account_unlocked_notice": "Tài khoản của bạn đã được phê duyệt mở lại.",
   "account_unlocked_subject": "Thông báo mở khóa tài khoản",
-  "success_delete_material": "Xoá tài liệu thành công"
+  "success_delete_material": "Xoá tài liệu thành công",
+  "exceed_limit_question": "Vượt quá giới hạn câu hỏi trong một hội thoại"
 }

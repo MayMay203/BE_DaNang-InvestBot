@@ -135,9 +135,24 @@ export class ConversationController {
     @I18n() i18n: I18nContext,
   ) {
     try {
-      const accessToken = req.headers['authorization']?.split(' ')[1];
-      const { conversationId, query } = body;
+      let { conversationId, query } = body;
       const idList = await this.conversationService.getAllConversationIds();
+      if (!idList.includes(Number(conversationId))) {
+        throw new Error('Conversation is not existed!');
+      }
+
+      const countQuestion = await this.conversationService.countQuestionInConversation(conversationId)
+      if(countQuestion > 15) return res
+        .status(200)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.MANY_REQUESTS,
+            i18n.t('common.exceed_limit_question'),
+          ),
+        );
+
+      const accessToken = req.headers['authorization']?.split(' ')[1];
       if (!idList.includes(conversationId)) {
         throw new Error('Conversation is not existed!');
       }
@@ -188,18 +203,29 @@ export class ConversationController {
     @I18n() i18n: I18nContext,
   ) {
     try {
-      const accountId = (req as any).user.id;
-      const roleId = (req as any).user.roleId;
-      const accessToken = req.headers['authorization']?.split(' ')[1];
       let { conversationId, query } = body;
-      const preQuery = query;
       const idList = await this.conversationService.getAllConversationIds();
-
       if (!idList.includes(Number(conversationId))) {
         throw new Error('Conversation is not existed!');
       }
 
+      const countQuestion = await this.conversationService.countQuestionInConversation(conversationId)
+      if(countQuestion > 15) return res
+        .status(200)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.MANY_REQUESTS,
+            i18n.t('common.exceed_limit_question'),
+          ),
+        );
+
       if (!files.length) throw new Error('At least one file is required');
+
+      const accountId = (req as any).user.id;
+      const roleId = (req as any).user.roleId;
+      const accessToken = req.headers['authorization']?.split(' ')[1];
+      const preQuery = query;
 
       // Handle query with upload file
       const nameList = Array.from(files).map((file) => file.originalname);
