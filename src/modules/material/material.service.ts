@@ -23,6 +23,10 @@ export class MaterialService {
     private readonly knowlegdeStoreService: KnowledgeStoreService,
   ) {}
 
+  async addBasicMaterial(data: MaterialDTO[]){
+    await this.materialRepository.save(data)
+  }
+
   async uploadFilesToDriveOnly(
     files: Express.Multer.File[],
   ): Promise<string[]> {

@@ -30,6 +30,35 @@ export class MaterialController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Post('/add-basic-materials')
+  async addBasicMaterials(@Body() data:MaterialDTO[], @Res() res: Response){
+    try{
+      await this.materialService.addBasicMaterial(data)
+       return res
+        .status(201)
+        .json(
+          new ResponseData<string>(
+            'Add basic materials successfully',
+            StatusCodeHTTP.CREATED,
+            MessageHTTP.CREATED,
+          ),
+        ); 
+    }
+    catch(error){
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error?.response?.data?.detail ||
+              error.message ||
+              'An error occurred',
+          ),
+        );
+    }
+  }
+
   @Post('/upload-material')
   @UseInterceptors(FilesInterceptor('files'))
   async addMaterial(
