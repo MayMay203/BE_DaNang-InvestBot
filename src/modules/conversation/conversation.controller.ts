@@ -374,4 +374,32 @@ export class ConversationController {
         );
     }
   }
+
+  @Post('/search-chat')
+  async searchChat(@Body() body: {searchText: string, accountId: number}, @Res() res:Response, @Req() req: any){
+    try{
+      const {searchText, accountId} = body
+      const conversations = await this.conversationService.searchChat(searchText, accountId)
+      return res
+        .status(200)
+        .json(
+          new ResponseData<Object>(
+            conversations,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    }
+    catch(error){
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message,
+          ),
+        );
+    }
+  }
 }

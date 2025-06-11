@@ -4,7 +4,7 @@ import { I18nContext } from 'nestjs-i18n';
 import { Account } from 'src/entities/account.entity';
 import { Conversation } from 'src/entities/conversation.entity';
 import { QuestionAnswer } from 'src/entities/questionAnswer.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 
 @Injectable()
 export class ConversationService {
@@ -105,4 +105,44 @@ export class ConversationService {
     });
     return conversations;
   }
+
+async searchChat(searchText: string, accountId: number) {
+  const lowerText = searchText.toLowerCase();
+
+  const matches = await this.questionAnswerRepository
+    .createQueryBuilder('qa')
+    .leftJoinAndSelect('qa.conversation', 'conversation')
+    .where('conversation.accountId = :accountId', { accountId })
+    .andWhere(new Brackets(qb => {
+      qb.where('LOWER(qa.questionContent) LIKE :text', { text: `%${lowerText}%` })
+        .orWhere('LOWER(qa.answerContent) LIKE :text', { text: `%${lowerText}%` });
+    }))
+    .getMany();
+
+  // Gom QA theo conversationId
+  const map = new Map<number, { conversation: any; resultSearch: string[] }>();
+
+  for (const qa of matches) {
+    const conv = qa.conversation;
+
+    if (!map.has(conv.id)) {
+      const { questionAnswer, ...cleanConv } = conv;
+      map.set(conv.id, { conversation: cleanConv, resultSearch: [] });
+    }
+
+    const entry = map.get(conv.id)!;
+
+    if (qa.questionContent?.toLowerCase().includes(lowerText)) {
+      entry.resultSearch.push(qa.questionContent);
+    }
+    if (qa.answerContent?.toLowerCase().includes(lowerText)) {
+      entry.resultSearch.push(qa.answerContent);
+    }
+  }
+
+  return Array.from(map.values()).map(({ conversation, resultSearch }) => ({
+    ...conversation,
+    resultSearch,
+  }));
+}
 }
