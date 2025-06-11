@@ -131,14 +131,14 @@ export class ConversationController {
   async sendMessage(
     @Body() body: QueryDTO,
     @Res() res: Response,
-    @Req() req: Request,
+    @Req() req: any,
     @I18n() i18n: I18nContext,
   ) {
     try {
       let { conversationId, query } = body;
-      const idList = await this.conversationService.getAllConversationIds();
-      if (!idList.includes(Number(conversationId))) {
-        throw new Error('Conversation is not existed!');
+
+      if(!conversationId){
+        conversationId = (await this.conversationService.createConversation(req.user.id,i18n)).id
       }
 
       const countQuestion = await this.conversationService.countQuestionInConversation(conversationId)
@@ -153,9 +153,6 @@ export class ConversationController {
         );
 
       const accessToken = req.headers['authorization']?.split(' ')[1];
-      if (!idList.includes(conversationId)) {
-        throw new Error('Conversation is not existed!');
-      }
 
       const url = this.configService.get<string>('RAG_URL') ?? '';
       const data = await axios.post(`${url}/conversations/send-message`, {
@@ -164,12 +161,12 @@ export class ConversationController {
         accessToken,
       });
 
-      // await this.conversationService.saveHistoryChat(
-      //   conversationId,
-      //   query,
-      //   data.data,
-      //   i18n,
-      // );
+      await this.conversationService.saveHistoryChat(
+        conversationId,
+        query,
+        data.data,
+        i18n,
+      );
 
       return res
         .status(200)
@@ -199,14 +196,14 @@ export class ConversationController {
     @Body() body: QueryDTO,
     @UploadedFiles() files: Express.Multer.File[],
     @Res() res: Response,
-    @Req() req: Request,
+    @Req() req: any,
     @I18n() i18n: I18nContext,
   ) {
     try {
       let { conversationId, query } = body;
-      const idList = await this.conversationService.getAllConversationIds();
-      if (!idList.includes(Number(conversationId))) {
-        throw new Error('Conversation is not existed!');
+      
+      if(!conversationId){
+        conversationId = (await this.conversationService.createConversation(req.user.id,i18n)).id
       }
 
       const countQuestion = await this.conversationService.countQuestionInConversation(conversationId)
@@ -245,33 +242,33 @@ export class ConversationController {
         nameList,
       });
 
-      // const newConver = await this.conversationService.saveHistoryChat(
-      //   conversationId,
-      //   preQuery,
-      //   data.data,
-      //   i18n,
-      // );
+      const newConver = await this.conversationService.saveHistoryChat(
+        conversationId,
+        preQuery,
+        data.data,
+        i18n,
+      );
 
-      // // handle save file into db
-      // if (roleId != 1) {
-      //   const savePromises = fileLinks.map((link, index) => {
-      //     const materialData = {
-      //       name: nameList[index],
-      //       description: nameList[index],
-      //       text: null,
-      //       url: link,
-      //       createdAt: new Date(),
-      //       updatedAt: new Date(),
-      //       materialType: { id: 1 },
-      //       accessLevel: { id: 1 },
-      //       account: { id: Number(accountId) },
-      //       questionAnswer: { id: newConver?.id },
-      //     };
+      // handle save file into db
+      if (roleId != 1) {
+        const savePromises = fileLinks.map((link, index) => {
+          const materialData = {
+            name: nameList[index],
+            description: nameList[index],
+            text: null,
+            url: link,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            materialType: { id: 1 },
+            accessLevel: { id: 1 },
+            account: { id: Number(accountId) },
+            questionAnswer: { id: newConver?.id },
+          };
 
-      //     return this.materialService.saveMaterial(materialData);
-      //   });
-      //   await Promise.all(savePromises);
-      // }
+          return this.materialService.saveMaterial(materialData);
+        });
+        await Promise.all(savePromises);
+      }
 
       // handle delete file by user upload to query
       // this.materialService.deleteFilesFromDrive(fileLinks);
@@ -339,6 +336,61 @@ export class ConversationController {
           ),
         );
     } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message,
+          ),
+        );
+    }
+  }
+
+  @Get('/get-conversations-by-account/:id')
+  async getConversationsByAccount(@Param('id') id: number, @Res() res:Response){
+    try{
+      const conversations = await this.conversationService.getConversationsByAccount(id)
+      return res
+        .status(200)
+        .json(
+          new ResponseData<Object>(
+            conversations,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    }
+    catch(error){
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message,
+          ),
+        );
+    }
+  }
+
+  @Post('/search-chat')
+  async searchChat(@Body() body: {searchText: string, accountId: number}, @Res() res:Response, @Req() req: any){
+    try{
+      const {searchText, accountId} = body
+      const conversations = await this.conversationService.searchChat(searchText, accountId)
+      return res
+        .status(200)
+        .json(
+          new ResponseData<Object>(
+            conversations,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    }
+    catch(error){
       return res
         .status(400)
         .json(

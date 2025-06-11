@@ -60,7 +60,7 @@ export class AuthMiddleware implements NestMiddleware {
       return false;
     }
 
-    const adminRoutes = ['/manage-account', '/material', '/knowledge-store'];
+    const adminRoutes = ['/manage-account', '/material', '/knowledge-store', '/conversation/get-conversations-by-account'];
     return adminRoutes.some((route) => url.startsWith(route));
   }
 }
