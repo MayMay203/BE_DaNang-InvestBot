@@ -347,4 +347,31 @@ export class ConversationController {
         );
     }
   }
+
+  @Get('/get-conversations-by-account/:id')
+  async getConversationsByAccount(@Param('id') id: number, @Res() res:Response){
+    try{
+      const conversations = await this.conversationService.getConversationsByAccount(id)
+      return res
+        .status(200)
+        .json(
+          new ResponseData<Object>(
+            conversations,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    }
+    catch(error){
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message,
+          ),
+        );
+    }
+  }
 }

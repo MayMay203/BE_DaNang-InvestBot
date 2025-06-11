@@ -93,4 +93,16 @@ export class ConversationService {
     });
     return count;
   }
+
+  async getConversationsByAccount(id: number) {
+    const conversations = await this.conversationRepository.find({
+      where: {
+        account: {
+          id: id
+        }
+      },
+      relations: ['account'] 
+    });
+    return conversations;
+  }
 }
