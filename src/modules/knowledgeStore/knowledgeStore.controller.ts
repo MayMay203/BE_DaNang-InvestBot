@@ -18,6 +18,34 @@ export class KnowledgeStoreController {
     private readonly configService: ConfigService,
   ) {}
 
+    @Get('/get-all')
+  async getAllKnowledgeStore(@Res() res: Response) {
+    try {
+      const knowledgeStores =
+      await this.knowledgeStoreService.getAllKnowledStore();
+      console.log(knowledgeStores)
+      return res
+        .status(200)
+        .json(
+          new ResponseData<Object>(
+            knowledgeStores,
+            StatusCodeHTTP.SUCCESS,
+            MessageHTTP.SUCCESS,
+          ),
+        );
+    } catch (error) {
+      return res
+        .status(400)
+        .json(
+          new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            error.message || 'An error occurred',
+          ),
+        );
+    }
+  }
+
   @Get('/:id')
   async getDetailKnowledgeStore(@Res() res: Response, @Param('id') id: number) {
     try {
@@ -45,32 +73,6 @@ export class KnowledgeStoreController {
     }
   }
 
-  @Get('/get-all')
-  async getAllKnowledgeStore(@Res() res: Response) {
-    try {
-      const knowledgeStores =
-        await this.knowledgeStoreService.getAllKnowledStore();
-      return res
-        .status(200)
-        .json(
-          new ResponseData<Array<Object>>(
-            knowledgeStores,
-            StatusCodeHTTP.SUCCESS,
-            MessageHTTP.SUCCESS,
-          ),
-        );
-    } catch (error) {
-      return res
-        .status(400)
-        .json(
-          new ResponseData<null>(
-            null,
-            StatusCodeHTTP.BAD_REQUEST,
-            error.message || 'An error occurred',
-          ),
-        );
-    }
-  }
   @Post('/create')
   async createNewKnowledgeStore(
     @Body() body: KnowledgeStoreDTO,
@@ -79,6 +81,7 @@ export class KnowledgeStoreController {
   ) {
     try {
       const { name, description } = body;
+      console.log('VO day')
       const knowledgeStore =
         await this.knowledgeStoreService.createKnowledgeStore(
           name,
@@ -95,6 +98,7 @@ export class KnowledgeStoreController {
           ),
         );
     } catch (error) {
+      console.log(error)
       return res
         .status(400)
         .json(
