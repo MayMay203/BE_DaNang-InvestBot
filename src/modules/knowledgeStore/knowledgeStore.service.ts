@@ -32,7 +32,7 @@ export class KnowledgeStoreService {
     return await this.knowledgeStoreRepository.save(newData);
   }
 
-  async getDetailKnowledgeStore(id) {
+  async getDetailKnowledgeStore(id: number) {
     const store = await this.knowledgeStoreRepository.findOne({
       where: { id },
     });
@@ -140,7 +140,7 @@ export class KnowledgeStoreService {
         name: material.name,
         materialType: material.materialType.name,
         accessType: material.accessLevel.name,
-        knowledgeStore: material.knowledgeStore.name,
+        knowledgeStore: material.knowledgeStore?.name,
         data,
       };
     });
@@ -152,5 +152,19 @@ export class KnowledgeStoreService {
     }
 
     return processed;
+  }
+
+  async deleteKnowledgeStore(id: number){
+    const materialList = await this.materialRepository.find({
+      where: { knowledgeStore: { id } },
+      relations: ['knowledgeStore'],
+    });
+
+    for (const material of materialList) {
+      material.knowledgeStore = null;
+      await this.materialRepository.save(material);
+    }
+
+    await this.knowledgeStoreRepository.delete(id);
   }
 }

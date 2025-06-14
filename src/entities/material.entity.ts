@@ -36,7 +36,7 @@ export class Material {
     (knowledgeStore) => knowledgeStore.materials,
     { nullable: true },
   )
-  knowledgeStore: KnowledgeStore;
+  knowledgeStore: KnowledgeStore | null;
 
   @ManyToOne(() => MaterialType, (materialType) => materialType.materials)
   materialType: MaterialType;

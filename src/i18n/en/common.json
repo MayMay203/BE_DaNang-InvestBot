@@ -36,5 +36,7 @@
   "account_unlocked_notice": "Your account has been approved for reactivation.",
   "account_unlocked_subject": "Account Reactivation Notification",
   "success_delete_material": "Delete material successfully",
-  "exceed_limit_question": "Exceeding the question limit in a conversation"
+  "exceed_limit_question": "Exceeding the question limit in a conversation",
+  "delete_store_success": "Delete knowledge store successfully",
+  "delete_store_fail": "Failed to delete knowledge store"
 }
