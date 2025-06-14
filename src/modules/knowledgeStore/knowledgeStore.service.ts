@@ -55,7 +55,8 @@ export class KnowledgeStoreService {
       }),
     );
 
-    return result;
+    const reversedResult = result.reverse();
+    return reversedResult;
   }
 
   async updateKnowledStore(id: number, name: string, description: string) {
