@@ -28,13 +28,13 @@ export class MaterialController {
   constructor(
     private readonly materialService: MaterialService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @Post('/add-basic-materials')
-  async addBasicMaterials(@Body() data:MaterialDTO[], @Res() res: Response){
-    try{
+  async addBasicMaterials(@Body() data: MaterialDTO[], @Res() res: Response) {
+    try {
       await this.materialService.addBasicMaterial(data)
-       return res
+      return res
         .status(201)
         .json(
           new ResponseData<string>(
@@ -42,9 +42,9 @@ export class MaterialController {
             StatusCodeHTTP.CREATED,
             MessageHTTP.CREATED,
           ),
-        ); 
+        );
     }
-    catch(error){
+    catch (error) {
       return res
         .status(400)
         .json(
@@ -52,8 +52,8 @@ export class MaterialController {
             null,
             StatusCodeHTTP.BAD_REQUEST,
             error?.response?.data?.detail ||
-              error.message ||
-              'An error occurred',
+            error.message ||
+            'An error occurred',
           ),
         );
     }
@@ -109,8 +109,8 @@ export class MaterialController {
             null,
             StatusCodeHTTP.BAD_REQUEST,
             error?.response?.data?.detail ||
-              error.message ||
-              'An error occurred',
+            error.message ||
+            'An error occurred',
           ),
         );
     }
@@ -318,8 +318,8 @@ export class MaterialController {
             null,
             StatusCodeHTTP.BAD_REQUEST,
             error?.response?.data?.detail ||
-              error.message ||
-              'An error occurred',
+            error.message ||
+            'An error occurred',
           ),
         );
     }
@@ -346,8 +346,8 @@ export class MaterialController {
             null,
             StatusCodeHTTP.BAD_REQUEST,
             error?.response?.data?.detail ||
-              error.message ||
-              'An error occurred',
+            error.message ||
+            'An error occurred',
           ),
         );
     }
@@ -380,8 +380,8 @@ export class MaterialController {
             null,
             StatusCodeHTTP.BAD_REQUEST,
             error?.response?.data?.detail ||
-              error.message ||
-              'An error occurred',
+            error.message ||
+            'An error occurred',
           ),
         );
     }
@@ -400,6 +400,7 @@ export class MaterialController {
           ),
         );
     } catch (error) {
+      console.log(error)
       return res
         .status(400)
         .json(
@@ -407,8 +408,8 @@ export class MaterialController {
             null,
             StatusCodeHTTP.BAD_REQUEST,
             error?.response?.data?.detail ||
-              error.message ||
-              'An error occurred',
+            error.message ||
+            'An error occurred',
           ),
         );
     }

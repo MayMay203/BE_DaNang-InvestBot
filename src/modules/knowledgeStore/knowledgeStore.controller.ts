@@ -23,7 +23,6 @@ export class KnowledgeStoreController {
     try {
       const knowledgeStores =
       await this.knowledgeStoreService.getAllKnowledStore();
-      console.log(knowledgeStores)
       return res
         .status(200)
         .json(
@@ -81,7 +80,6 @@ export class KnowledgeStoreController {
   ) {
     try {
       const { name, description } = body;
-      console.log('VO day')
       const knowledgeStore =
         await this.knowledgeStoreService.createKnowledgeStore(
           name,
