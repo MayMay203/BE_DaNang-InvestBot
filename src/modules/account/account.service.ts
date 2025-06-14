@@ -11,11 +11,14 @@ export class AccountService {
   constructor(
     @InjectRepository(Account) private accountRepository: Repository<Account>,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   async getAllAccount() {
     return (
-      await this.accountRepository.find({ relations: ['role'] })
+      await this.accountRepository.find({
+        where: { verified: true },
+        relations: ['role'],
+      })
     ).reverse();
   }
 
