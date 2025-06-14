@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { ResponseData } from 'src/global/globalClass';
 import { MessageHTTP, StatusCodeHTTP } from 'src/global/globalEnum';
@@ -18,12 +18,11 @@ export class KnowledgeStoreController {
     private readonly configService: ConfigService,
   ) {}
 
-    @Get('/get-all')
+  @Get('/get-all')
   async getAllKnowledgeStore(@Res() res: Response) {
     try {
       const knowledgeStores =
       await this.knowledgeStoreService.getAllKnowledStore();
-      console.log(knowledgeStores)
       return res
         .status(200)
         .json(
@@ -81,7 +80,6 @@ export class KnowledgeStoreController {
   ) {
     try {
       const { name, description } = body;
-      console.log('VO day')
       const knowledgeStore =
         await this.knowledgeStoreService.createKnowledgeStore(
           name,
@@ -257,6 +255,29 @@ export class KnowledgeStoreController {
             error.message || 'An error occurred',
           ),
         );
+    }
+  }
+
+  @Delete('/delete-store/:id')
+  async deleteStore(@Param('id') id : number, @Res() res: Response, @I18n() i18n: I18nContext){
+    try{
+      await this.knowledgeStoreService.deleteKnowledgeStore(id)
+      return res.status(200).json(
+         new ResponseData<null>(
+            null,
+            StatusCodeHTTP.SUCCESS,
+            i18n.t('common.delete_store_success'),
+          ),
+      )
+    }
+    catch(error){
+      return res.status(400).json(
+         new ResponseData<null>(
+            null,
+            StatusCodeHTTP.BAD_REQUEST,
+            i18n.t('common.delete_store_fail'),
+          ),
+      )
     }
   }
 }

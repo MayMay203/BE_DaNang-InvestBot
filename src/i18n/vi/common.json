@@ -36,5 +36,7 @@
   "account_unlocked_notice": "Tài khoản của bạn đã được phê duyệt mở lại.",
   "account_unlocked_subject": "Thông báo mở khóa tài khoản",
   "success_delete_material": "Xoá tài liệu thành công",
-  "exceed_limit_question": "Vượt quá giới hạn câu hỏi trong một hội thoại"
+  "exceed_limit_question": "Vượt quá giới hạn câu hỏi trong một hội thoại",
+  "delete_store_success": "Xóa kho kiến thức thành công",
+  "delete_store_fail": "Lỗi khi xóa kho kiến thức"
 }

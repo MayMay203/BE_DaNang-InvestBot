@@ -264,7 +264,7 @@ export class MaterialService {
             materials: [`${material.name}_${material.id}`],
             storeId,
             storeName,
-            storeDesc,
+            storeDesc: storeDesc || '',
           });
         }
 
