@@ -46,21 +46,23 @@ import * as path from 'path';
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
         type: 'mysql',
-        host: config.get('DB_HOST'),
-        port: parseInt(config.get('DB_PORT') || '3306'),
-        username: config.get('DB_USERNAME'),
-        password: config.get('DB_PASSWORD'),
-        database: config.get('DB_NAME'),
-        entities: [
-          Account,
-          Role,
-          AccessLevel,
-          Conversation,
-          KnowledgeStore,
-          Material,
-          MaterialType,
-          QuestionAnswer,
-        ],
+        url: config.get('MYSQL_PUBLIC_URL'),
+        autoLoadEntities: true,
+        // host: config.get('DB_HOST'),
+        // port: parseInt(config.get('DB_PORT') || '3306'),
+        // username: config.get('DB_USERNAME'),
+        // password: config.get('DB_PASSWORD'),
+        // database: config.get('DB_NAME'),
+        // entities: [
+        //   Account,
+        //   Role,
+        //   AccessLevel,
+        //   Conversation,
+        //   KnowledgeStore,
+        //   Material,
+        //   MaterialType,
+        //   QuestionAnswer,
+        // ],
         synchronize: false,
       }),
       inject: [ConfigService],
@@ -90,7 +92,7 @@ export class AppModule implements NestModule {
         { path: 'auth/forget-password', method: RequestMethod.POST },
         { path: 'auth/login-with-google', method: RequestMethod.GET },
         { path: '/auth/google/callback', method: RequestMethod.GET },
-        { path: '/material/add-basic-materials', method: RequestMethod.POST}
+        { path: '/material/add-basic-materials', method: RequestMethod.POST }
       )
       .forRoutes('*');
   }
