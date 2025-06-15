@@ -16,13 +16,13 @@ export class KnowledgeStoreController {
   constructor(
     private readonly knowledgeStoreService: KnowledgeStoreService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @Get('/get-all')
   async getAllKnowledgeStore(@Res() res: Response) {
     try {
       const knowledgeStores =
-      await this.knowledgeStoreService.getAllKnowledStore();
+        await this.knowledgeStoreService.getAllKnowledStore();
       return res
         .status(200)
         .json(
@@ -259,24 +259,24 @@ export class KnowledgeStoreController {
   }
 
   @Delete('/delete-store/:id')
-  async deleteStore(@Param('id') id : number, @Res() res: Response, @I18n() i18n: I18nContext){
-    try{
+  async deleteStore(@Param('id') id: number, @Res() res: Response, @I18n() i18n: I18nContext) {
+    try {
       await this.knowledgeStoreService.deleteKnowledgeStore(id)
       return res.status(200).json(
-         new ResponseData<null>(
-            null,
-            StatusCodeHTTP.SUCCESS,
-            i18n.t('common.delete_store_success'),
-          ),
+        new ResponseData<null>(
+          null,
+          StatusCodeHTTP.SUCCESS,
+          i18n.t('common.delete_store_success'),
+        ),
       )
     }
-    catch(error){
+    catch (error) {
       return res.status(400).json(
-         new ResponseData<null>(
-            null,
-            StatusCodeHTTP.BAD_REQUEST,
-            i18n.t('common.delete_store_fail'),
-          ),
+        new ResponseData<null>(
+          null,
+          StatusCodeHTTP.BAD_REQUEST,
+          i18n.t('common.delete_store_fail'),
+        ),
       )
     }
   }

@@ -12,7 +12,7 @@ export class KnowledgeStoreService {
     private knowledgeStoreRepository: Repository<KnowledgeStore>,
     @InjectRepository(Material)
     private materialRepository: Repository<Material>,
-  ) {}
+  ) { }
 
   async createKnowledgeStore(
     name: string,
@@ -122,39 +122,7 @@ export class KnowledgeStoreService {
     }
   }
 
-  async asyncKnowledgeStore(id: number) {
-    const materials = await this.materialRepository.find({
-      where: { knowledgeStore: { id } },
-      relations: ['materialType', 'accessLevel', 'knowledgeStore'],
-    });
-
-    const processed = materials.map((material) => {
-      let data = '';
-      if (material.materialType.id === 2) {
-        data = material.text || '';
-      } else {
-        data = material.url;
-      }
-      return {
-        id: material.id,
-        name: material.name,
-        materialType: material.materialType.name,
-        accessType: material.accessLevel.name,
-        knowledgeStore: material.knowledgeStore?.name,
-        data,
-      };
-    });
-
-    const store = await this.knowledgeStoreRepository.findOneBy({ id });
-    if (store) {
-      store.status = 'Asynced';
-      await this.knowledgeStoreRepository.save(store);
-    }
-
-    return processed;
-  }
-
-  async deleteKnowledgeStore(id: number){
+  async deleteKnowledgeStore(id: number) {
     const materialList = await this.materialRepository.find({
       where: { knowledgeStore: { id } },
       relations: ['knowledgeStore'],
