@@ -29,6 +29,7 @@ import { KnowledgeStoreModule } from './modules/knowledgeStore/knowledgeStore.mo
 import { ConversationModule } from './modules/conversation/conversation.module';
 import { I18nModule, HeaderResolver } from 'nestjs-i18n';
 import * as path from 'path';
+import { CronModule } from './modules/cronJob/cron.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import * as path from 'path';
     SeederModule,
     KnowledgeStoreModule,
     ConversationModule,
+    CronModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
@@ -61,7 +63,7 @@ import * as path from 'path';
           MaterialType,
           QuestionAnswer,
         ],
-        synchronize: true,
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),
@@ -90,7 +92,8 @@ export class AppModule implements NestModule {
         { path: 'auth/forget-password', method: RequestMethod.POST },
         { path: 'auth/login-with-google', method: RequestMethod.GET },
         { path: '/auth/google/callback', method: RequestMethod.GET },
-        { path: '/material/add-basic-materials', method: RequestMethod.POST }
+        { path: '/material/add-basic-materials', method: RequestMethod.POST },
+        { path: '/cron/ping', method: RequestMethod.GET }
       )
       .forRoutes('*');
   }
