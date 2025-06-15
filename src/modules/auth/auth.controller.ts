@@ -26,7 +26,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('/register')
   async register(
@@ -318,7 +318,7 @@ export class AuthController {
     try {
       const token = await this.authService.loginWithGoogle(req.user);
       res.redirect(
-        `http://localhost:3000/oauth-success?accessToken=${token.accessToken}&refreshToken=${token.refreshToken}`,
+        `${process.env.CLIENT_URL}/oauth-success?accessToken=${token.accessToken}&refreshToken=${token.refreshToken}`,
       );
     } catch (error) {
       res

@@ -14,7 +14,7 @@ export class AuthService {
     @InjectRepository(Account) private accountRepository: Repository<Account>,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async addDefaultAdminAcc(i18n: I18nContext | null) {
     const adminAcc = await this.accountRepository.findOne({
@@ -167,7 +167,7 @@ export class AuthService {
         secret: process.env.JWT_ACCESS_SECRET,
         expiresIn: '5m',
       });
-      const linkURL = `http://localhost:3000/reset-password?secret=${accessToken}`;
+      const linkURL = `${process.env.CLIENT_URL}/reset-password?secret=${accessToken}`;
       await this.emailService.forgetPassword(email, linkURL, i18n);
     } else {
       throw new Error(i18n.t('common.not_registered_email'));
