@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({ origin: ['http://localhost:3000', 'https://danang-investbot.onrender.com'] });
+  app.enableCors({ origin: ['http://localhost:3000', 'https://danang-investbot.onrender.com', 'https://da-nang-invest-bot.vercel.app'] });
   await app.listen(process.env.PORT ?? 3002);
 
   if (module.hot) {

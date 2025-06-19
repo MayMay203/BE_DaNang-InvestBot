@@ -81,17 +81,20 @@ export class MaterialService {
           folderId,
         );
 
-        const materialData = {
-          name: file.originalname,
-          description: file.originalname,
-          text: data.text,
-          url: urlFile,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          materialType: { id: Number(data.materialTypeId) },
-          accessLevel: { id: Number(data.accessLevelId) },
-          account: { id: Number(accountId) },
-        };
+        const originalNameBuffer = Buffer.from(file.originalname, 'latin1');  
+        const fixedName = originalNameBuffer.toString('utf8');
+
+          const materialData = {
+            name: fixedName,
+            description: fixedName,
+            text: data.text,
+            url: urlFile,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            materialType: { id: Number(data.materialTypeId) },
+            accessLevel: { id: Number(data.accessLevelId) },
+            account: { id: Number(accountId) },
+          };
 
         const saved = await this.materialRepository.save(materialData);
 
@@ -168,11 +171,13 @@ export class MaterialService {
 
     if (store?.includes('empty')) {
       const storeId = Number(store.split('/')[1]);
-      materials = materials.filter(
-        (material) =>
-          material.knowledgeStore === null ||
-          material.knowledgeStore.id == storeId,
-      );
+      if(storeId){
+         materials = materials.filter(
+          (material) =>
+            material.knowledgeStore === null ||
+            material.knowledgeStore.id == storeId,
+        );
+      }
     }
 
     if (role === 'user') {
