@@ -250,25 +250,23 @@ export class ConversationController {
       );
 
       // handle save file into db
-      if (roleId != 1) {
-        const savePromises = fileLinks.map((link, index) => {
-          const materialData = {
-            name: nameList[index],
-            description: nameList[index],
-            text: null,
-            url: link,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            materialType: { id: 1 },
-            accessLevel: { id: 1 },
-            account: { id: Number(accountId) },
-            questionAnswer: { id: newConver?.id },
-          };
+      const savePromises = fileLinks.map((link, index) => {
+        const materialData = {
+          name: nameList[index],
+          description: nameList[index],
+          text: null,
+          url: link,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          materialType: { id: 1 },
+          accessLevel: { id: 1 },
+          account: Number(accountId) === 1 ? null : { id: Number(accountId) },
+          questionAnswer: { id: newConver?.id },
+        };
 
-          return this.materialService.saveMaterial(materialData);
-        });
-        await Promise.all(savePromises);
-      }
+        return this.materialService.saveMaterial(materialData);
+      });
+      await Promise.all(savePromises);
 
       // handle delete file by user upload to query
       // this.materialService.deleteFilesFromDrive(fileLinks);

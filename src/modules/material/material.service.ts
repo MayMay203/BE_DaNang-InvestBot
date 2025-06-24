@@ -182,11 +182,11 @@ export class MaterialService {
 
     if (role === 'user') {
       materials = materials.filter(
-        (material) => material.account && material.account.role?.id !== 1,
+        (material) => !material.account || material.account?.role?.id !== 1,
       );
     } else {
       materials = materials.filter(
-        (material) => !material.account || material.account?.role?.id === 1,
+        (material) => material.account?.role?.id === 1,
       );
     }
 
@@ -207,7 +207,7 @@ export class MaterialService {
   }
 
   async syncUserMaterial(id: number) {
-    await this.materialRepository.update(id, { account: null });
+    await this.materialRepository.update(id, { account: {id: 1} });
   }
 
   async saveMaterial(materialInfo: any) {
